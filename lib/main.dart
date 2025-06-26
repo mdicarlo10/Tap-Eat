@@ -3,6 +3,12 @@ import 'screens/homepage.dart';
 import 'screens/navigationpage.dart';
 import 'screens/searching.dart';
 
+const backgroundColor = Color(0xFFFFF8F0);
+const primaryColor = Color(0xFFEB5E28);
+const textColor = Color(0xFF252422);
+const secondaryTextColor = Color(0xFF403D39);
+const borderColor = Color(0xFFCCC5B9);
+
 void main() {
   runApp(const MainApp());
 }
@@ -56,7 +62,8 @@ class NavigationWrapperState extends State<NavigationWrapper> {
         showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.navigation),label: "Navigation"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.navigation), label: "Navigation"),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
         ],
       ),
