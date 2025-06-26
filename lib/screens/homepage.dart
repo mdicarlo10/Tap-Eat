@@ -14,9 +14,9 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFCF2),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFCF2),
+        backgroundColor: backgroundColor,
         elevation: 0,
         toolbarHeight: 0,
       ),
@@ -52,7 +52,7 @@ class _HomepageState extends State<Homepage> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF252422),
+                  color: textColor,
                 ),
               ),
             ),
@@ -64,7 +64,7 @@ class _HomepageState extends State<Homepage> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF252422),
+                color: textColor,
               ),
             ),
 
@@ -87,7 +87,7 @@ class _HomepageState extends State<Homepage> {
               child: const Center(
                 child: Text(
                   'Nessuna ricerca recente',
-                  style: TextStyle(color: Color(0xFF252422), fontSize: 16),
+                  style: TextStyle(color: textColor, fontSize: 16),
                 ),
               ),
             ),
