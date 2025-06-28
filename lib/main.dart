@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'screens/homepage.dart';
-import 'screens/navigationpage.dart';
 import 'screens/searching.dart';
 import 'screens/preferences.dart';
 
