@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Searching extends StatefulWidget {
   const Searching({Key? key}) : super(key: key);
@@ -13,13 +12,13 @@ class Searching extends StatefulWidget {
 class _SearchingPageState extends State<Searching> {
   late final MapController _mapController;
   late List<Map<String, dynamic>> _restaurants;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
 
-    // Lista statica dei ristoranti
     _restaurants = [
       {
         'name': 'Ristorante 1',
@@ -28,7 +27,7 @@ class _SearchingPageState extends State<Searching> {
         'location': LatLng(45.4642, 9.1900),
       },
       {
-        'name': 'Ristorante 2',
+        'name': 'Pizzeria Bella',
         'type': 'Pizzeria',
         'distance': '1 km',
         'location': LatLng(45.4650, 9.1910),
@@ -36,22 +35,70 @@ class _SearchingPageState extends State<Searching> {
     ];
   }
 
+  List<Map<String, dynamic>> get _filteredRestaurants {
+    if (_searchQuery.isEmpty) return _restaurants;
+    return _restaurants.where((rest) {
+      final name = (rest['name'] as String).toLowerCase();
+      return name.contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final center =
         _restaurants.isNotEmpty
             ? (_restaurants[0]['location'] as LatLng)
-            : LatLng(45.4642, 9.1900); // esempio: Milano
+            : LatLng(45.4642, 9.1900);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ristoranti')),
-      body: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(center: center, zoom: 13),
+      body: Column(
         children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.tapeat',
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Cerca ristorante',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(center: center, zoom: 13),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.tapeat',
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: ListView.builder(
+              itemCount: _filteredRestaurants.length,
+              itemBuilder: (context, index) {
+                final restaurant = _filteredRestaurants[index];
+                return ListTile(
+                  title: Text(restaurant['name']),
+                  subtitle: Text(
+                    '${restaurant['type']} • ${restaurant['distance']}',
+                  ),
+                  onTap: () {
+                    // Qui puoi navigare alla pagina dettaglio
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
