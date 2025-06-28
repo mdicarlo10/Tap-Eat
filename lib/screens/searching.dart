@@ -93,11 +93,21 @@ class _SearchingPageState extends State<Searching> {
   }
 
   List<Map<String, dynamic>> get _filteredRestaurants {
-    if (_searchQuery.isEmpty) return [];
-    return _filteredInPolygon.where((rest) {
-      final name = (rest['name'] as String).toLowerCase();
-      return name.contains(_searchQuery.toLowerCase());
-    }).toList();
+    if (_searchQuery.isNotEmpty) {
+      // filtro per testo tra tutti i ristoranti
+      return _restaurants.where((rest) {
+        final name = (rest['name'] as String).toLowerCase();
+        return name.contains(_searchQuery.toLowerCase());
+      }).toList();
+    } else if (polygonPoints.length >= 3) {
+      // filtro per poligono se non c'è ricerca testuale
+      return _restaurants.where((rest) {
+        final LatLng point = rest['location'];
+        return _pointInPolygon(point, polygonPoints);
+      }).toList();
+    } else {
+      return _restaurants;
+    }
   }
 
   @override
@@ -107,8 +117,7 @@ class _SearchingPageState extends State<Searching> {
             ? (_restaurants[0]['location'] as LatLng)
             : LatLng(45.4642, 9.1900);
 
-    final showResults =
-        _searchQuery.isNotEmpty && _filteredInPolygon.isNotEmpty;
+    final showResults = _searchQuery.isNotEmpty || (polygonPoints.length >= 3);
     final results = _filteredRestaurants;
 
     return Scaffold(
