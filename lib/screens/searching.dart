@@ -70,7 +70,7 @@ class _SearchingPageState extends State<Searching> {
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 5,
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(center: center, zoom: 13),
@@ -83,22 +83,32 @@ class _SearchingPageState extends State<Searching> {
             ),
           ),
           Expanded(
-            flex: 3,
-            child: ListView.builder(
-              itemCount: _filteredRestaurants.length,
-              itemBuilder: (context, index) {
-                final restaurant = _filteredRestaurants[index];
-                return ListTile(
-                  title: Text(restaurant['name']),
-                  subtitle: Text(
-                    '${restaurant['type']} • ${restaurant['distance']}',
-                  ),
-                  onTap: () {
-                    // Qui puoi navigare alla pagina dettaglio
-                  },
-                );
-              },
-            ),
+            flex: 2,
+            child:
+                _searchQuery.isEmpty
+                    ? const Center(child: Text('Digita un nome per cercare'))
+                    : _filteredRestaurants.isEmpty
+                    ? const Center(child: Text('Nessun risultato'))
+                    : ListView.builder(
+                      itemCount: _filteredRestaurants.length,
+                      itemBuilder: (context, index) {
+                        final restaurant = _filteredRestaurants[index];
+                        return ListTile(
+                          title: Text(
+                            restaurant['name'],
+                            semanticsLabel: 'Nome ristorante',
+                          ),
+                          subtitle: Text(
+                            '${restaurant['type']} • ${restaurant['distance']}',
+                          ),
+                          onTap: () {
+                            final loc = restaurant['location'] as LatLng;
+                            _mapController.move(loc, 15);
+                            // Naviga ai dettagli o fai altro
+                          },
+                        );
+                      },
+                    ),
           ),
         ],
       ),
