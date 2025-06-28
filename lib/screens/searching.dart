@@ -15,6 +15,7 @@ class _SearchingPageState extends State<Searching> {
   String _searchQuery = '';
   bool _isDrawingArea = false;
   List<LatLng> polygonPoints = [];
+  List<Map<String, dynamic>> _filteredInPolygon = [];
 
   @override
   void initState() {
@@ -39,30 +40,39 @@ class _SearchingPageState extends State<Searching> {
 
   void _toggleDrawing() {
     setState(() {
-      if (_isDrawingArea) {
-        polygonPoints.clear();
-        _isDrawingArea = false;
-      } else {
-        _searchQuery = '';
-        _isDrawingArea = true;
-      }
+      polygonPoints.clear();
+      _filteredInPolygon.clear();
+      _isDrawingArea = !_isDrawingArea;
+      _searchQuery = '';
     });
   }
 
-  void _addPointToPolygon(LatLng point) {
-    if (_isDrawingArea) {
-      setState(() {
-        polygonPoints.add(point);
-      });
-    }
+  LatLng _convertToLatLng(Offset position) {
+    final bounds = _mapController.bounds!;
+    final size = MediaQuery.of(context).size;
+
+    final lat =
+        bounds.north +
+        (bounds.south - bounds.north) * (position.dy / size.height);
+    final lng =
+        bounds.west + (bounds.east - bounds.west) * (position.dx / size.width);
+
+    return LatLng(lat, lng);
   }
 
-  List<Map<String, dynamic>> get _filteredRestaurants {
-    if (_searchQuery.isEmpty) return _restaurants;
-    return _restaurants.where((rest) {
-      final name = (rest['name'] as String).toLowerCase();
-      return name.contains(_searchQuery.toLowerCase());
-    }).toList();
+  void _confirmPolygon() {
+    if (polygonPoints.length < 3) return;
+
+    final filtered =
+        _restaurants.where((rest) {
+          final LatLng point = rest['location'];
+          return _pointInPolygon(point, polygonPoints);
+        }).toList();
+
+    setState(() {
+      _filteredInPolygon = filtered;
+      _isDrawingArea = false;
+    });
   }
 
   bool _pointInPolygon(LatLng point, List<LatLng> polygon) {
@@ -82,12 +92,24 @@ class _SearchingPageState extends State<Searching> {
     return (intersectCount % 2) == 1;
   }
 
+  List<Map<String, dynamic>> get _filteredRestaurants {
+    if (_searchQuery.isEmpty) return [];
+    return _filteredInPolygon.where((rest) {
+      final name = (rest['name'] as String).toLowerCase();
+      return name.contains(_searchQuery.toLowerCase());
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final center =
         _restaurants.isNotEmpty
             ? (_restaurants[0]['location'] as LatLng)
             : LatLng(45.4642, 9.1900);
+
+    final showResults =
+        _searchQuery.isNotEmpty && _filteredInPolygon.isNotEmpty;
+    final results = _filteredRestaurants;
 
     return Scaffold(
       appBar: AppBar(
@@ -102,62 +124,44 @@ class _SearchingPageState extends State<Searching> {
       ),
       body: Stack(
         children: [
-          GestureDetector(
-            onTapUp: (details) {
-              if (_isDrawingArea) {
-                final RenderBox renderBox =
-                    context.findRenderObject() as RenderBox;
-                final localOffset = renderBox.globalToLocal(
-                  details.globalPosition,
-                );
-                final point = _mapController.pointToLatLng(
-                  CustomPoint(localOffset.dx, localOffset.dy),
-                );
-                if (point != null) {
-                  _addPointToPolygon(point);
-                }
-              }
-            },
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(center: center, zoom: 13),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.tapeat',
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(center: center, zoom: 13),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.tapeat',
+              ),
+              if (polygonPoints.length > 2)
+                PolygonLayer(
+                  polygons: [
+                    Polygon(
+                      points: polygonPoints,
+                      color: Colors.blue.withOpacity(0.3),
+                      borderStrokeWidth: 2.0,
+                      borderColor: Colors.blue,
+                    ),
+                  ],
                 ),
-                if (polygonPoints.length > 2)
-                  PolygonLayer(
-                    polygons: [
-                      Polygon(
-                        points: polygonPoints,
-                        color: Colors.blue.withOpacity(0.3),
-                        borderStrokeWidth: 2.0,
-                        borderColor: Colors.blue,
-                      ),
-                    ],
-                  ),
-                MarkerLayer(
-                  markers:
-                      _restaurants.map((rest) {
-                        final LatLng point = rest['location'];
-                        return Marker(
-                          point: point,
-                          width: 40,
-                          height: 40,
-                          builder:
-                              (_) => const Icon(
-                                Icons.location_on,
-                                color: Colors.red,
-                              ),
-                        );
-                      }).toList(),
-                ),
-              ],
-            ),
+              MarkerLayer(
+                markers:
+                    _filteredRestaurants.map((restaurant) {
+                      final loc = restaurant['location'] as LatLng;
+                      return Marker(
+                        point: loc,
+                        width: 40,
+                        height: 40,
+                        builder:
+                            (_) => const Icon(
+                              Icons.location_pin,
+                              color: Colors.red,
+                            ),
+                      );
+                    }).toList(),
+              ),
+            ],
           ),
 
-          // Search input
           Positioned(
             top: 12,
             left: 12,
@@ -167,7 +171,7 @@ class _SearchingPageState extends State<Searching> {
               borderRadius: BorderRadius.circular(4),
               child: TextField(
                 decoration: const InputDecoration(
-                  labelText: 'Cerca ristorante',
+                  labelText: 'Ricerca ristoranti',
                   prefixIcon: Icon(Icons.search),
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16),
@@ -181,22 +185,33 @@ class _SearchingPageState extends State<Searching> {
             ),
           ),
 
-          // Risultati della ricerca
-          if (_searchQuery.isNotEmpty)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 250,
+          if (_isDrawingArea)
+            GestureDetector(
+              onPanUpdate: (details) {
+                final point = _convertToLatLng(details.localPosition);
+                setState(() {
+                  polygonPoints.add(point);
+                });
+              },
+              onPanEnd: (_) {
+                _confirmPolygon();
+              },
+              child: Container(color: Colors.transparent),
+            ),
+
+          if (showResults)
+            Align(
+              alignment: Alignment.bottomCenter,
               child: Container(
+                height: 250,
                 color: Colors.white.withOpacity(0.95),
                 child:
-                    _filteredRestaurants.isEmpty
+                    results.isEmpty
                         ? const Center(child: Text('Nessun risultato'))
                         : ListView.builder(
-                          itemCount: _filteredRestaurants.length,
+                          itemCount: results.length,
                           itemBuilder: (context, index) {
-                            final restaurant = _filteredRestaurants[index];
+                            final restaurant = results[index];
                             return ListTile(
                               title: Text(restaurant['name']),
                               subtitle: Text(
