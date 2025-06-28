@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/homepage.dart';
 import 'screens/navigationpage.dart';
 import 'screens/searching.dart';
+import 'screens/preferences.dart';
 
 const backgroundColor = Color(0xFFFFF8F0);
 const primaryColor = Color(0xFFEB5E28);
@@ -41,7 +42,8 @@ class NavigationWrapper extends StatefulWidget {
 class NavigationWrapperState extends State<NavigationWrapper> {
   int selectedIndex = 0;
 
-  final List<Widget> _pages = [Homepage(), Searching(), NavigationPage()];
+  final List<Widget> _pages = [Homepage(), Searching(), Preferences()];
+
   void _onTap(int index) {
     setState(() {
       selectedIndex = index;
@@ -62,9 +64,11 @@ class NavigationWrapperState extends State<NavigationWrapper> {
         showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.navigation), label: "Navigation"),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: "Preferences",
+          ),
         ],
       ),
     );
