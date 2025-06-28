@@ -3,99 +3,77 @@ import 'package:path/path.dart';
 import '../models/restaurant.dart';
 
 class RestaurantDatabase {
-  static final RestaurantDatabase instance = RestaurantDatabase.init();
+  static final RestaurantDatabase instance = RestaurantDatabase._init();
+
   static Database? _database;
 
-  RestaurantDatabase.init();
+  RestaurantDatabase._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await initDB('Ristorande.db');
+
+    _database = await _initDB('restaurants.db');
     return _database!;
   }
 
-  Future<Database> initDB(String filePath) async {
-    final dbpath = await getDatabasesPath();
-    final path = join(dbpath, filePath);
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: createDB);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
   }
 
-  Future createDB(Database db, int version) async {
-    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    const textType = 'TEXT NOT NULL';
-    const doubleType = 'REAL NOT NULL';
-
+  Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE restaurant_history (
-        id $idType,
-        name $textType,
-        distance $textType,
-        type $textType,
-        latitude $doubleType,
-        longitude $doubleType,
-        address TEXT,
-        imageUrl TEXT,
-        rating REAL,
-        timestamp INTEGER NOT NULL
+      CREATE TABLE restaurants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        distance TEXT NOT NULL,
+        type TEXT NOT NULL,
+        imageUrl TEXT
       )
     ''');
   }
 
-  Future<int> addToHistory(Restaurant restaurant) async {
-    final db = await database;
-
-    final maps = await db.query(
-      'restaurant_history',
-      columns: ['id'],
-      where: 'name = ? AND latitude = ? AND longitude = ?',
-      whereArgs: [restaurant.name, restaurant.latitude, restaurant.longitude],
+  Future<void> insert(Restaurant restaurant) async {
+    final db = await instance.database;
+    await db.insert(
+      'restaurants',
+      restaurant.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
 
-    if (maps.isNotEmpty) {
-      await db.update(
-        'restaurant_history',
-        {'timestamp': DateTime.now().millisecondsSinceEpoch},
-        where: 'id = ?',
-        whereArgs: [maps.first['id']],
-      );
-      return maps.first['id'] as int;
-    } else {
-      final restaurantMap = restaurant.toMap();
-      restaurantMap['timestamp'] = DateTime.now().millisecondsSinceEpoch;
-      return await db.insert('restaurant_history', restaurantMap);
-    }
+  Future<List<Restaurant>> getAll() async {
+    final db = await instance.database;
+    final maps = await db.query('restaurants', orderBy: 'id DESC');
+
+    return maps.map((map) => Restaurant.fromMap(map)).toList();
   }
 
   Future<List<Restaurant>> getHistory({int limit = 10}) async {
-    final db = await database;
-
-    final orderBy = 'timestamp DESC';
-    final result = await db.query(
-      'restaurant_history',
-      orderBy: orderBy,
+    final db = await instance.database;
+    final maps = await db.query(
+      'restaurants',
+      orderBy: 'id DESC',
       limit: limit,
     );
 
-    return result.map((json) => Restaurant.fromMap(json)).toList();
+    return maps.map((map) => Restaurant.fromMap(map)).toList();
   }
 
-  Future<int> deleteFromHistory(int id) async {
-    final db = await database;
-
-    return await db.delete(
-      'restaurant_history',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+  Future<void> deleteAll() async {
+    final db = await instance.database;
+    await db.delete('restaurants');
   }
 
-  Future<int> clearHistory() async {
-    final db = await database;
-    return await db.delete('restaurant_history');
-  }
-
-  Future close() async {
+  Future<void> close() async {
     final db = await instance.database;
     db.close();
   }
