@@ -43,6 +43,7 @@ class _SearchingPageState extends State<Searching> {
         polygonPoints.clear();
         _isDrawingArea = false;
       } else {
+        _searchQuery = '';
         _isDrawingArea = true;
       }
     });
