@@ -44,11 +44,15 @@ class _SearchingPageState extends State<Searching> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final center =
         _restaurants.isNotEmpty
             ? (_restaurants[0]['location'] as LatLng)
             : LatLng(45.4642, 9.1900);
+
+    final isSearching = _searchQuery.isNotEmpty;
+    final results = _filteredRestaurants;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ristoranti')),
@@ -70,45 +74,49 @@ class _SearchingPageState extends State<Searching> {
             ),
           ),
           Expanded(
-            flex: 5,
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(center: center, zoom: 13),
+            child: Stack(
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.tapeat',
+                FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(center: center, zoom: 13),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.tapeat',
+                    ),
+                  ],
                 ),
+                if (isSearching)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 250,
+                      color: Colors.white.withOpacity(0.95),
+                      child:
+                          results.isEmpty
+                              ? const Center(child: Text('Nessun risultato'))
+                              : ListView.builder(
+                                itemCount: results.length,
+                                itemBuilder: (context, index) {
+                                  final restaurant = results[index];
+                                  return ListTile(
+                                    title: Text(restaurant['name']),
+                                    subtitle: Text(
+                                      '${restaurant['type']} • ${restaurant['distance']}',
+                                    ),
+                                    onTap: () {
+                                      final loc =
+                                          restaurant['location'] as LatLng;
+                                      _mapController.move(loc, 15);
+                                    },
+                                  );
+                                },
+                              ),
+                    ),
+                  ),
               ],
             ),
-          ),
-          Expanded(
-            flex: 2,
-            child:
-                _searchQuery.isEmpty
-                    ? const Center(child: Text('Digita un nome per cercare'))
-                    : _filteredRestaurants.isEmpty
-                    ? const Center(child: Text('Nessun risultato'))
-                    : ListView.builder(
-                      itemCount: _filteredRestaurants.length,
-                      itemBuilder: (context, index) {
-                        final restaurant = _filteredRestaurants[index];
-                        return ListTile(
-                          title: Text(
-                            restaurant['name'],
-                            semanticsLabel: 'Nome ristorante',
-                          ),
-                          subtitle: Text(
-                            '${restaurant['type']} • ${restaurant['distance']}',
-                          ),
-                          onTap: () {
-                            final loc = restaurant['location'] as LatLng;
-                            _mapController.move(loc, 15);
-                            // Naviga ai dettagli o fai altro
-                          },
-                        );
-                      },
-                    ),
           ),
         ],
       ),
