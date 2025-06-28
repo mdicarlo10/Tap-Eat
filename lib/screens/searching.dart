@@ -55,7 +55,18 @@ class _SearchingPageState extends State<Searching> {
     final results = _filteredRestaurants;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ristoranti')),
+      appBar: AppBar(
+        title: const Text('Ristoranti'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            tooltip: 'Disegna area',
+            onPressed: () {
+              // disegna area
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
