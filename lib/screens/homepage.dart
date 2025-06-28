@@ -28,7 +28,6 @@ class _HomepageState extends State<Homepage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            // Logo
             Center(
               child: Container(
                 width: 120,
@@ -47,7 +46,6 @@ class _HomepageState extends State<Homepage> {
 
             const SizedBox(height: 20),
 
-            // Nome app
             const Center(
               child: Text(
                 'Tap & Eat',
@@ -79,7 +77,6 @@ class _HomepageState extends State<Homepage> {
 
             const SizedBox(height: 20),
 
-            // Recent Searches Title
             const Text(
               "Ricerche precedenti",
               style: TextStyle(
@@ -91,7 +88,6 @@ class _HomepageState extends State<Homepage> {
 
             const SizedBox(height: 15),
 
-            // Recent Searches Grid
             Container(
               decoration: BoxDecoration(
                 color: backgroundColor,
