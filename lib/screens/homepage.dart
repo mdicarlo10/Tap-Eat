@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../database/restaurant_db.dart';
+import '../models/restaurant.dart';
 import '../main.dart';
 
 class Homepage extends StatefulWidget {
@@ -57,7 +59,26 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
 
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Dove volevi mangiare?',
+                  prefixIcon: Icon(Icons.search, color: textColor),
+                  filled: true,
+                  fillColor: backgroundColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                style: TextStyle(color: textColor),
+              ),
+            ),
+
             const SizedBox(height: 20),
+
             // Recent Searches Title
             const Text(
               "Ricerche precedenti",
