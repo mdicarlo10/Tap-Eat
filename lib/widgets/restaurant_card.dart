@@ -4,8 +4,15 @@ import '../main.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
 
-  const RestaurantCard({Key? key, required this.restaurant}) : super(key: key);
+  const RestaurantCard({
+    Key? key,
+    required this.restaurant,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +27,6 @@ class RestaurantCard extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
-            // Optional image
             if (restaurant.imageUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
@@ -54,7 +60,6 @@ class RestaurantCard extends StatelessWidget {
 
             const SizedBox(width: 12),
 
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,6 +92,13 @@ class RestaurantCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : borderColor.withOpacity(0.6),
+              ),
+              onPressed: onFavoriteToggle,
             ),
           ],
         ),

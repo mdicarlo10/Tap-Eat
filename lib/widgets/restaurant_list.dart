@@ -18,13 +18,24 @@ class RestaurantList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // evita doppio scroll
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: restaurants.length,
       itemBuilder: (context, index) {
         final restaurant = restaurants[index];
+        // Controlla se il ristorante è nei preferiti
+        final isFavorite = favorites.any(
+          (fav) =>
+              fav.name == restaurant.name &&
+              fav.latitude == restaurant.latitude &&
+              fav.longitude == restaurant.longitude,
+        );
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
-          child: RestaurantCard(restaurant: restaurant),
+          child: RestaurantCard(
+            restaurant: restaurant,
+            isFavorite: isFavorite,
+            onFavoriteToggle: () => toggleFavorite(restaurant),
+          ),
         );
       },
     );
