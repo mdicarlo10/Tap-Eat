@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../database/restaurant_db.dart';
-import '../models/restaurant.dart';
 import '../main.dart';
 
 class Homepage extends StatefulWidget {
