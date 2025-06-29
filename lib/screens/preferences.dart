@@ -66,7 +66,14 @@ class _SearchingState extends State<Preferences> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('I tuoi preferiti'),
+        title: Text(
+          'I tuoi preferiti',
+          style: TextStyle(
+            color: primaryColor,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: backgroundColor,
         elevation: 0,
         centerTitle: true,
@@ -80,13 +87,10 @@ class _SearchingState extends State<Preferences> {
                   style: TextStyle(color: secondaryTextColor, fontSize: 18),
                 ),
               )
-              : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: RestaurantList(
-                  restaurants: favorites,
-                  favorites: favorites,
-                  toggleFavorite: toggleFavorite,
-                ),
+              : RestaurantList(
+                restaurants: favorites,
+                favorites: favorites,
+                toggleFavorite: toggleFavorite,
               ),
     );
   }
