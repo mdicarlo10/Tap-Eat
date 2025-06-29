@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
 import '../models/restaurant.dart';
+import '../main.dart';
 
 class Searching extends StatefulWidget {
   const Searching({Key? key}) : super(key: key);
@@ -126,7 +127,18 @@ class _SearchingPageState extends State<Searching> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ristoranti'),
+        title: Text(
+          'Ricerca ristoranti',
+          style: TextStyle(
+            color: primaryColor,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+        foregroundColor: textColor,
         actions: [
           IconButton(
             icon: Icon(_isDrawingArea ? Icons.close : Icons.edit),
@@ -217,7 +229,7 @@ class _SearchingPageState extends State<Searching> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 height: 250,
-                color: Colors.white.withOpacity(0.95),
+                color: backgroundColor,
                 child:
                     results.isEmpty
                         ? const Center(child: Text('Nessun risultato'))
