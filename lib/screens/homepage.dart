@@ -63,7 +63,7 @@ class _HomepageState extends State<Homepage> {
                   hintText: 'Dove volevi mangiare?',
                   prefixIcon: Icon(Icons.search, color: textColor),
                   filled: true,
-                  fillColor: backgroundColor,
+                  fillColor: borderColor.withOpacity(0.1),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -88,7 +88,7 @@ class _HomepageState extends State<Homepage> {
 
             Container(
               decoration: BoxDecoration(
-                color: backgroundColor,
+                color: borderColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
