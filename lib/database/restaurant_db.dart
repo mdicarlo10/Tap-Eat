@@ -32,7 +32,8 @@ class RestaurantDatabase {
         longitude REAL NOT NULL,
         distance TEXT NOT NULL,
         type TEXT NOT NULL,
-        imageUrl TEXT
+        imageUrl TEXT,
+        isFavorite INTEGER NOT NULL DEFAULT 0
       )
     ''');
   }
@@ -59,6 +60,30 @@ class RestaurantDatabase {
       'restaurants',
       orderBy: 'id DESC',
       limit: limit,
+    );
+
+    return maps.map((map) => Restaurant.fromMap(map)).toList();
+  }
+
+  Future<void> updateFavoriteStatus(
+    Restaurant restaurant,
+    bool isFavorite,
+  ) async {
+    final db = await instance.database;
+    await db.update(
+      'restaurants',
+      {'isFavorite': isFavorite ? 1 : 0},
+      where: 'name = ? AND latitude = ? AND longitude = ?',
+      whereArgs: [restaurant.name, restaurant.latitude, restaurant.longitude],
+    );
+  }
+
+  Future<List<Restaurant>> getFavorites() async {
+    final db = await instance.database;
+    final maps = await db.query(
+      'restaurants',
+      where: 'isFavorite = ?',
+      whereArgs: [1],
     );
 
     return maps.map((map) => Restaurant.fromMap(map)).toList();
