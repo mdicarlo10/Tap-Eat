@@ -42,17 +42,14 @@ class _SearchingState extends State<Preferences> {
     ),
   ];
 
-  // Lista locale dei preferiti che aggiorniamo
   late List<Restaurant> favorites;
 
   @override
   void initState() {
     super.initState();
-    // Inizializza la lista preferiti da allRestaurants filtrando quelli isFavorite == true
     favorites = allRestaurants.where((r) => r.isFavorite).toList();
   }
 
-  // Toggle preferito: se c'è lo rimuove, se non c'è lo aggiunge
   void toggleFavorite(Restaurant restaurant) {
     setState(() {
       final isFav = favorites.any((r) => r.name == restaurant.name);
