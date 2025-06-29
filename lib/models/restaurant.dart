@@ -5,6 +5,7 @@ class Restaurant {
   final String distance;
   final String type;
   final String? imageUrl;
+  final bool isFavorite;
 
   Restaurant({
     required this.name,
@@ -13,6 +14,7 @@ class Restaurant {
     required this.distance,
     required this.type,
     this.imageUrl,
+    this.isFavorite = false,
   });
 
   factory Restaurant.fromMap(Map<String, dynamic> map) {
@@ -23,6 +25,7 @@ class Restaurant {
       distance: map['distance'] ?? '',
       type: map['type'] ?? '',
       imageUrl: map['imageUrl'],
+      isFavorite: map['isFavorite'] == 1,
     );
   }
 
@@ -34,6 +37,7 @@ class Restaurant {
       'distance': distance,
       'type': type,
       'imageUrl': imageUrl,
+      'isFavorite': isFavorite ? 1 : 0,
     };
   }
 }
