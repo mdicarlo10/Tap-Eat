@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../screens/navigationpage.dart';
+import '../models/restaurant.dart';
 
 class Searching extends StatefulWidget {
   const Searching({Key? key}) : super(key: key);
@@ -11,11 +13,11 @@ class Searching extends StatefulWidget {
 
 class _SearchingPageState extends State<Searching> {
   late final MapController _mapController;
-  late List<Map<String, dynamic>> _restaurants;
+  late List<Restaurant> _restaurants;
   String _searchQuery = '';
   bool _isDrawingArea = false;
   List<LatLng> polygonPoints = [];
-  List<Map<String, dynamic>> _filteredInPolygon = [];
+  List<Restaurant> _filteredInPolygon = [];
 
   @override
   void initState() {
@@ -23,18 +25,22 @@ class _SearchingPageState extends State<Searching> {
     _mapController = MapController();
 
     _restaurants = [
-      {
-        'name': 'Ristorante 1',
-        'type': 'Italiana',
-        'distance': '500 m',
-        'location': LatLng(45.4642, 9.1900),
-      },
-      {
-        'name': 'Pizzeria Bella',
-        'type': 'Pizzeria',
-        'distance': '1 km',
-        'location': LatLng(45.4650, 9.1910),
-      },
+      Restaurant(
+        name: 'Ristorante 1',
+        type: 'Italiana',
+        distance: '500 m',
+        latitude: 45.4642,
+        longitude: 9.1900,
+        imageUrl: null,
+      ),
+      Restaurant(
+        name: 'Pizzeria Bella',
+        type: 'Pizzeria',
+        distance: '1 km',
+        latitude: 45.4650,
+        longitude: 9.1910,
+        imageUrl: null,
+      ),
     ];
   }
 
@@ -65,7 +71,7 @@ class _SearchingPageState extends State<Searching> {
 
     final filtered =
         _restaurants.where((rest) {
-          final LatLng point = rest['location'];
+          final point = LatLng(rest.latitude, rest.longitude);
           return _pointInPolygon(point, polygonPoints);
         }).toList();
 
@@ -92,17 +98,15 @@ class _SearchingPageState extends State<Searching> {
     return (intersectCount % 2) == 1;
   }
 
-  List<Map<String, dynamic>> get _filteredRestaurants {
+  List<Restaurant> get _filteredRestaurants {
     if (_searchQuery.isNotEmpty) {
-      // filtro per testo tra tutti i ristoranti
       return _restaurants.where((rest) {
-        final name = (rest['name'] as String).toLowerCase();
+        final name = rest.name.toLowerCase();
         return name.contains(_searchQuery.toLowerCase());
       }).toList();
     } else if (polygonPoints.length >= 3) {
-      // filtro per poligono se non c'è ricerca testuale
       return _restaurants.where((rest) {
-        final LatLng point = rest['location'];
+        final point = LatLng(rest.latitude, rest.longitude);
         return _pointInPolygon(point, polygonPoints);
       }).toList();
     } else {
@@ -114,7 +118,7 @@ class _SearchingPageState extends State<Searching> {
   Widget build(BuildContext context) {
     final center =
         _restaurants.isNotEmpty
-            ? (_restaurants[0]['location'] as LatLng)
+            ? LatLng(_restaurants[0].latitude, _restaurants[0].longitude)
             : LatLng(45.4642, 9.1900);
 
     final showResults = _searchQuery.isNotEmpty || (polygonPoints.length >= 3);
@@ -154,8 +158,11 @@ class _SearchingPageState extends State<Searching> {
                 ),
               MarkerLayer(
                 markers:
-                    _filteredRestaurants.map((restaurant) {
-                      final loc = restaurant['location'] as LatLng;
+                    results.map((restaurant) {
+                      final loc = LatLng(
+                        restaurant.latitude,
+                        restaurant.longitude,
+                      );
                       return Marker(
                         point: loc,
                         width: 40,
@@ -170,7 +177,6 @@ class _SearchingPageState extends State<Searching> {
               ),
             ],
           ),
-
           Positioned(
             top: 12,
             left: 12,
@@ -193,7 +199,6 @@ class _SearchingPageState extends State<Searching> {
               ),
             ),
           ),
-
           if (_isDrawingArea)
             GestureDetector(
               onPanUpdate: (details) {
@@ -207,7 +212,6 @@ class _SearchingPageState extends State<Searching> {
               },
               child: Container(color: Colors.transparent),
             ),
-
           if (showResults)
             Align(
               alignment: Alignment.bottomCenter,
@@ -222,13 +226,20 @@ class _SearchingPageState extends State<Searching> {
                           itemBuilder: (context, index) {
                             final restaurant = results[index];
                             return ListTile(
-                              title: Text(restaurant['name']),
+                              title: Text(restaurant.name),
                               subtitle: Text(
-                                '${restaurant['type']} • ${restaurant['distance']}',
+                                '${restaurant.type} • ${restaurant.distance}',
                               ),
                               onTap: () {
-                                final loc = restaurant['location'] as LatLng;
-                                _mapController.move(loc, 15);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => NavigationPage(
+                                          restaurant: restaurant,
+                                        ),
+                                  ),
+                                );
                               },
                             );
                           },
