@@ -75,12 +75,12 @@ class _HomepageState extends State<Homepage> {
 
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               "Ricerche precedenti",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: textColor,
+                color: textColor.withOpacity(0.8),
               ),
             ),
 
