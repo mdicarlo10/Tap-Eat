@@ -25,7 +25,14 @@ class NavigationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('Dettagli ristorante'),
+        title: Text(
+          'Dettagli ristorante',
+          style: const TextStyle(
+            color: primaryColor,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: backgroundColor,
         iconTheme: const IconThemeData(color: textColor),
         elevation: 0,
@@ -35,7 +42,6 @@ class NavigationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Immagine del ristorante
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child:
