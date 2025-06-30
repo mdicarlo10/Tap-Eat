@@ -26,7 +26,7 @@ class RestaurantDatabase {
   Future _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE restaurants (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
