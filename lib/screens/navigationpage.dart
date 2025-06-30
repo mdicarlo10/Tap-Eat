@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/restaurant_favorite_provider.dart';
 import '../models/restaurant.dart';
+import '../database/restaurant_db.dart';
 import '../main.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
@@ -21,6 +22,23 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
     super.initState();
     final favorites = ref.read(favoritesProvider);
     _isFavorite = favorites.any((r) => r.id == widget.restaurant.id);
+    _saveAsRecentlyViewed();
+  }
+
+  Future<void> _saveAsRecentlyViewed() async {
+    await RestaurantDatabase.instance.insert(
+      Restaurant(
+        id: widget.restaurant.id,
+        name: widget.restaurant.name,
+        latitude: widget.restaurant.latitude,
+        longitude: widget.restaurant.longitude,
+        distance: widget.restaurant.distance,
+        type: widget.restaurant.type,
+        imageUrl: widget.restaurant.imageUrl,
+        isFavorite: widget.restaurant.isFavorite,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
   }
 
   void _launchMaps() async {
