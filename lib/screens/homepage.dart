@@ -46,7 +46,7 @@ class Homepage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 30),
             const LatestRestaurant(),
           ],
         ),
