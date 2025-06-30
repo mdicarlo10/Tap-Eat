@@ -57,19 +57,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
               ? '${widget.restaurant.name} rimosso dai preferiti'
               : '${widget.restaurant.name} aggiunto ai preferiti',
         ),
-        action: SnackBarAction(
-          label: 'Annulla',
-          onPressed: () {
-            if (wasFavorite) {
-              favoritesNotifier.addToFavorites(widget.restaurant);
-            } else {
-              favoritesNotifier.removeFromFavorites(widget.restaurant);
-            }
-            setState(() {
-              _isFavorite = wasFavorite;
-            });
-          },
-        ),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
