@@ -50,7 +50,7 @@ class RestaurantCard extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: borderColor.withOpacity(0.2),
+                  color: borderColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -99,7 +99,7 @@ class RestaurantCard extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : borderColor.withOpacity(0.6),
+                  color: isFavorite ? Colors.red : borderColor,
                 ),
                 onPressed: onFavoriteToggle,
               ),
