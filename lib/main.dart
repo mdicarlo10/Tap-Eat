@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/homepage.dart';
 import 'screens/searching.dart';
 import 'screens/preferences.dart';
+import '../database/restaurant_db.dart';
 
 const backgroundColor = Color(0xFFFFF8F0);
 const primaryColor = Color(0xFFEB5E28);
@@ -10,7 +11,10 @@ const textColor = Color(0xFF252422);
 const secondaryTextColor = Color(0xFF403D39);
 const borderColor = Color(0xFFCCC5B9);
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await RestaurantDatabase.instance.database;
+
   runApp(const ProviderScope(child: MainApp()));
 }
 
