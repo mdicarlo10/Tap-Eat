@@ -85,7 +85,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Dettagli ristorante',
           style: const TextStyle(
             color: primaryColor,
@@ -124,7 +124,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
                       : Container(
                         width: double.infinity,
                         height: 180,
-                        color: borderColor.withOpacity(0.3),
+                        color: borderColor,
                         child: const Icon(
                           Icons.restaurant,
                           size: 60,
