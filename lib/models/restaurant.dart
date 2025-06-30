@@ -10,6 +10,7 @@ class Restaurant {
   final String distance;
   final String type;
   final String? imageUrl;
+  final int timestamp;
   final bool isFavorite;
 
   Restaurant({
@@ -20,8 +21,10 @@ class Restaurant {
     required this.type,
     this.imageUrl,
     this.isFavorite = false,
+    int? timestamp,
     String? id,
-  }) : id = id ?? uuid.v4();
+  }) : id = id ?? uuid.v4(),
+       timestamp = timestamp ?? DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> toMap() {
     return {
@@ -32,6 +35,7 @@ class Restaurant {
       'distance': distance,
       'type': type,
       'imageUrl': imageUrl,
+      'timestamp': timestamp,
       'isFavorite': isFavorite ? 1 : 0,
     };
   }
@@ -45,6 +49,7 @@ class Restaurant {
       distance: map['distance'] ?? '',
       type: map['type'] ?? '',
       imageUrl: map['imageUrl'],
+      timestamp: map['timestamp'],
       isFavorite: map['isFavorite'] == 1,
     );
   }
