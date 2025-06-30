@@ -169,8 +169,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
             SizedBox(
               width: double.infinity,
               height: 48,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.navigation, color: Colors.white),
+              child: ElevatedButton(
                 onPressed: _launchMaps,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorScheme.primary,
@@ -178,7 +177,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                label: const Text(
+                child: const Text(
                   "Portami al ristorante",
                   style: TextStyle(color: Colors.white),
                 ),
