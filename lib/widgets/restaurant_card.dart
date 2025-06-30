@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/restaurant.dart';
-import '../main.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
@@ -18,12 +17,13 @@ class RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
-      color: backgroundColor,
+      color: colorScheme.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: borderColor, width: 1),
+        side: BorderSide(color: colorScheme.outline, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -38,10 +38,10 @@ class RestaurantCard extends StatelessWidget {
                   height: 60,
                   fit: BoxFit.cover,
                   errorBuilder:
-                      (context, error, stackTrace) => const Icon(
+                      (context, error, stackTrace) => Icon(
                         Icons.image_not_supported,
                         size: 60,
-                        color: secondaryTextColor,
+                        color: colorScheme.secondary,
                       ),
                 ),
               )
@@ -50,13 +50,13 @@ class RestaurantCard extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: borderColor,
+                  color: colorScheme.outline,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.restaurant,
                   size: 32,
-                  color: secondaryTextColor,
+                  color: colorScheme.secondary,
                 ),
               ),
 
@@ -68,10 +68,10 @@ class RestaurantCard extends StatelessWidget {
                 children: [
                   Text(
                     restaurant.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: textColor,
+                      color: colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -79,17 +79,17 @@ class RestaurantCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Tipo: ${restaurant.type}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: secondaryTextColor,
+                      color: colorScheme.secondary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Distanza: ${restaurant.distance}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: secondaryTextColor,
+                      color: colorScheme.secondary,
                     ),
                   ),
                 ],
@@ -99,7 +99,7 @@ class RestaurantCard extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : borderColor,
+                  color: isFavorite ? Colors.red : colorScheme.outline,
                 ),
                 onPressed: onFavoriteToggle,
               ),
