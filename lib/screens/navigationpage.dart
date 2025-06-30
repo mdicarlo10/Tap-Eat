@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../providers/restaurant_favorite_provider.dart';
 import '../models/restaurant.dart';
 import '../main.dart';
 
-class NavigationPage extends StatelessWidget {
+class NavigationPage extends ConsumerStatefulWidget {
   final Restaurant restaurant;
 
   const NavigationPage({super.key, required this.restaurant});
 
+  ConsumerState<NavigationPage> createState() => _NavigationPageState();
+}
+
+class _NavigationPageState extends ConsumerState<NavigationPage> {
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    final favorites = ref.read(favoritesProvider);
+    _isFavorite = favorites.any((r) => r.id == widget.restaurant.id);
+  }
+
   void _launchMaps() async {
     final url = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1&destination=${restaurant.latitude},${restaurant.longitude}',
+      'https://www.google.com/maps/dir/?api=1&destination=${widget.restaurant.latitude},${widget.restaurant.longitude}',
     );
 
     if (await canLaunchUrl(url)) {
@@ -18,6 +33,45 @@ class NavigationPage extends StatelessWidget {
     } else {
       throw 'Impossibile aprire Google Maps';
     }
+  }
+
+  void _toggleFavorite() {
+    final favoritesNotifier = ref.read(favoritesProvider.notifier);
+    final wasFavorite = _isFavorite;
+
+    setState(() {
+      _isFavorite = !wasFavorite;
+    });
+
+    if (!wasFavorite) {
+      favoritesNotifier.addToFavorites(widget.restaurant);
+    } else {
+      favoritesNotifier.removeFromFavorites(widget.restaurant);
+    }
+
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          wasFavorite
+              ? '${widget.restaurant.name} rimosso dai preferiti'
+              : '${widget.restaurant.name} aggiunto ai preferiti',
+        ),
+        action: SnackBarAction(
+          label: 'Annulla',
+          onPressed: () {
+            if (wasFavorite) {
+              favoritesNotifier.addToFavorites(widget.restaurant);
+            } else {
+              favoritesNotifier.removeFromFavorites(widget.restaurant);
+            }
+            setState(() {
+              _isFavorite = wasFavorite;
+            });
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -36,6 +90,15 @@ class NavigationPage extends StatelessWidget {
         backgroundColor: backgroundColor,
         iconTheme: const IconThemeData(color: textColor),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorite ? Colors.red : textColor,
+            ),
+            onPressed: _toggleFavorite,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -45,9 +108,9 @@ class NavigationPage extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child:
-                  restaurant.imageUrl != null
+                  widget.restaurant.imageUrl != null
                       ? Image.network(
-                        restaurant.imageUrl!,
+                        widget.restaurant.imageUrl!,
                         width: double.infinity,
                         height: 180,
                         fit: BoxFit.cover,
@@ -66,7 +129,7 @@ class NavigationPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             Text(
-              restaurant.name,
+              widget.restaurant.name,
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -75,17 +138,17 @@ class NavigationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "Tipo: ${restaurant.type}",
+              "Tipo: ${widget.restaurant.type}",
               style: const TextStyle(fontSize: 16, color: secondaryTextColor),
             ),
             const SizedBox(height: 4),
             Text(
-              "Distanza: ${restaurant.distance}",
+              "Distanza: ${widget.restaurant.distance}",
               style: const TextStyle(fontSize: 16, color: secondaryTextColor),
             ),
             const SizedBox(height: 4),
             Text(
-              "Posizione: (${restaurant.latitude.toStringAsFixed(4)}, ${restaurant.longitude.toStringAsFixed(4)})",
+              "Posizione: (${widget.restaurant.latitude.toStringAsFixed(4)}, ${widget.restaurant.longitude.toStringAsFixed(4)})",
               style: const TextStyle(fontSize: 16, color: secondaryTextColor),
             ),
 
@@ -95,6 +158,7 @@ class NavigationPage extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: ElevatedButton.icon(
+                icon: const Icon(Icons.navigation, color: Colors.white),
                 onPressed: _launchMaps,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
