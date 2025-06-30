@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
 import '../models/restaurant.dart';
-import '../main.dart';
+import '../database/restaurant_db.dart';
 
 class Searching extends StatefulWidget {
   const Searching({Key? key}) : super(key: key);
@@ -103,6 +103,14 @@ class _SearchingPageState extends State<Searching> {
     return (intersectCount % 2) == 1;
   }
 
+  Future<void> _saveRestaurantToHistory(Restaurant restaurant) async {
+    try {
+      await RestaurantDatabase.instance.insert(restaurant);
+    } catch (e) {
+      print('Errore nel salvare il ristorante: $e');
+    }
+  }
+
   List<Restaurant> get _filteredRestaurants {
     if (_searchQuery.isNotEmpty) {
       return _restaurants.where((rest) {
@@ -128,21 +136,19 @@ class _SearchingPageState extends State<Searching> {
 
     final showResults = _searchQuery.isNotEmpty || (polygonPoints.length >= 3);
     final results = _filteredRestaurants;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text(
           'Ricerca ristoranti',
-          style: TextStyle(
-            color: primaryColor,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: backgroundColor,
+        backgroundColor: colorScheme.primary,
         elevation: 0,
         centerTitle: true,
-        foregroundColor: textColor,
+        foregroundColor: colorScheme.onPrimary,
         actions: [
           IconButton(
             icon: Icon(_isDrawingArea ? Icons.close : Icons.edit),
@@ -166,7 +172,7 @@ class _SearchingPageState extends State<Searching> {
                   polygons: [
                     Polygon(
                       points: polygonPoints,
-                      color: Colors.blue,
+                      color: Colors.blue.withOpacity(0.3),
                       borderStrokeWidth: 2.0,
                       borderColor: Colors.blue,
                     ),
@@ -236,7 +242,7 @@ class _SearchingPageState extends State<Searching> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 height: 250,
-                color: backgroundColor,
+                color: colorScheme.surface,
                 child:
                     results.isEmpty
                         ? const Center(child: Text('Nessun risultato'))
@@ -245,11 +251,16 @@ class _SearchingPageState extends State<Searching> {
                           itemBuilder: (context, index) {
                             final restaurant = results[index];
                             return ListTile(
-                              title: Text(restaurant.name),
+                              title: Text(
+                                restaurant.name,
+                                style: TextStyle(color: colorScheme.onSurface),
+                              ),
                               subtitle: Text(
                                 '${restaurant.type} • ${restaurant.distance}',
+                                style: TextStyle(color: colorScheme.secondary),
                               ),
-                              onTap: () {
+                              onTap: () async {
+                                await _saveRestaurantToHistory(restaurant);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
