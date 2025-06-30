@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
 import '../widgets/latest_restaurant.dart';
 
 class Homepage extends StatelessWidget {
@@ -7,10 +6,11 @@ class Homepage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: colorScheme.primary,
         elevation: 0,
         toolbarHeight: 0,
       ),
@@ -36,17 +36,16 @@ class Homepage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Center(
+            Center(
               child: Text(
                 'Tap & Eat',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: textColor,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
-
             const SizedBox(height: 25),
             const LatestRestaurant(),
           ],
