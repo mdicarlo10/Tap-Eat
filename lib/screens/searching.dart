@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
 import '../models/restaurant.dart';
+import '../database/restaurant_db.dart';
 import '../main.dart';
 
 class Searching extends StatefulWidget {
@@ -34,6 +35,7 @@ class _SearchingPageState extends State<Searching> {
         latitude: 45.4642,
         longitude: 9.1900,
         imageUrl: null,
+        timestamp: DateTime.now().millisecondsSinceEpoch - 100000,
       ),
       Restaurant(
         id: "2",
@@ -43,6 +45,7 @@ class _SearchingPageState extends State<Searching> {
         latitude: 45.4650,
         longitude: 9.1910,
         imageUrl: null,
+        timestamp: DateTime.now().millisecondsSinceEpoch - 50000,
       ),
     ];
   }
@@ -129,7 +132,7 @@ class _SearchingPageState extends State<Searching> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Ricerca ristoranti',
           style: TextStyle(
             color: primaryColor,
