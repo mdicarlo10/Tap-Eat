@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/restaurant.dart';
 import '../providers/restaurant_favorite_provider.dart';
 import '../widgets/restaurant_list.dart';
 import '../main.dart';
@@ -14,7 +13,7 @@ class Preferences extends ConsumerWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'I tuoi preferiti',
           style: TextStyle(
             color: primaryColor,
@@ -29,7 +28,7 @@ class Preferences extends ConsumerWidget {
       ),
       body:
           allFavorites.isEmpty
-              ? Center(
+              ? const Center(
                 child: Text(
                   'Nessun ristorante preferito',
                   style: TextStyle(color: secondaryTextColor, fontSize: 18),
