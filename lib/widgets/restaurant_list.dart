@@ -8,11 +8,11 @@ class RestaurantList extends StatelessWidget {
   final Function(Restaurant) toggleFavorite;
 
   const RestaurantList({
-    Key? key,
+    super.key,
     required this.restaurants,
     required this.favorites,
     required this.toggleFavorite,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
