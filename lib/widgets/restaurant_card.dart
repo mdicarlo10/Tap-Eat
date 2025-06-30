@@ -6,6 +6,7 @@ class RestaurantCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
   final bool showFavoriteIcon;
+  final Color? favoriteColor;
 
   const RestaurantCard({
     Key? key,
@@ -13,6 +14,7 @@ class RestaurantCard extends StatelessWidget {
     required this.isFavorite,
     required this.onFavoriteToggle,
     this.showFavoriteIcon = true,
+    this.favoriteColor,
   }) : super(key: key);
 
   @override
@@ -99,7 +101,10 @@ class RestaurantCard extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : colorScheme.outline,
+                  color:
+                      isFavorite
+                          ? (favoriteColor ?? Colors.red)
+                          : colorScheme.outline,
                 ),
                 onPressed: onFavoriteToggle,
               ),

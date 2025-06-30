@@ -29,6 +29,8 @@ class RestaurantList extends StatelessWidget {
             restaurant: restaurant,
             isFavorite: isFavorite,
             onFavoriteToggle: () => toggleFavorite(restaurant),
+            showFavoriteIcon: true,
+            favoriteColor: const Color(0xFFE07A5F),
           ),
         );
       },
