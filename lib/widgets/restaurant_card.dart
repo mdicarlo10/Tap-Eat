@@ -6,12 +6,14 @@ class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
+  final bool showFavoriteIcon;
 
   const RestaurantCard({
     Key? key,
     required this.restaurant,
     required this.isFavorite,
     required this.onFavoriteToggle,
+    this.showFavoriteIcon = true,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,7 @@ class RestaurantCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: borderColor.withOpacity(0.4), width: 1),
+        side: BorderSide(color: borderColor, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -93,13 +95,14 @@ class RestaurantCard extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : borderColor.withOpacity(0.6),
+            if (showFavoriteIcon)
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : borderColor.withOpacity(0.6),
+                ),
+                onPressed: onFavoriteToggle,
               ),
-              onPressed: onFavoriteToggle,
-            ),
           ],
         ),
       ),
