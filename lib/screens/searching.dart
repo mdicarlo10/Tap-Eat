@@ -6,7 +6,7 @@ import '../models/restaurant.dart';
 import '../database/restaurant_db.dart';
 
 class Searching extends StatefulWidget {
-  const Searching({Key? key}) : super(key: key);
+  const Searching({super.key});
 
   @override
   _SearchingPageState createState() => _SearchingPageState();

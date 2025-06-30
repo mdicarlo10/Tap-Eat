@@ -4,7 +4,7 @@ import '../providers/restaurant_favorite_provider.dart';
 import '../widgets/restaurant_list.dart';
 
 class Preferences extends ConsumerWidget {
-  const Preferences({Key? key}) : super(key: key);
+  const Preferences({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

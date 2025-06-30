@@ -9,13 +9,13 @@ class RestaurantCard extends StatelessWidget {
   final Color? favoriteColor;
 
   const RestaurantCard({
-    Key? key,
+    super.key,
     required this.restaurant,
     required this.isFavorite,
     required this.onFavoriteToggle,
     this.showFavoriteIcon = true,
     this.favoriteColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
