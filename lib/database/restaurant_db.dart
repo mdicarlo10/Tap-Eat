@@ -73,8 +73,8 @@ class RestaurantDatabase {
     await db.update(
       'restaurants',
       {'isFavorite': isFavorite ? 1 : 0},
-      where: 'name = ? AND latitude = ? AND longitude = ?',
-      whereArgs: [restaurant.name, restaurant.latitude, restaurant.longitude],
+      where: 'id = ?',
+      whereArgs: [restaurant.id],
     );
   }
 
@@ -87,15 +87,5 @@ class RestaurantDatabase {
     );
 
     return maps.map((map) => Restaurant.fromMap(map)).toList();
-  }
-
-  Future<void> deleteAll() async {
-    final db = await instance.database;
-    await db.delete('restaurants');
-  }
-
-  Future<void> close() async {
-    final db = await instance.database;
-    db.close();
   }
 }
