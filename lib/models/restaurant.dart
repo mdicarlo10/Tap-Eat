@@ -1,3 +1,7 @@
+import 'package:uuid/uuid.dart';
+
+const uuid = Uuid();
+
 class Restaurant {
   final String id;
   final String name;
@@ -9,7 +13,6 @@ class Restaurant {
   final bool isFavorite;
 
   Restaurant({
-    required this.id,
     required this.name,
     required this.latitude,
     required this.longitude,
@@ -17,20 +20,8 @@ class Restaurant {
     required this.type,
     this.imageUrl,
     this.isFavorite = false,
-  });
-
-  factory Restaurant.fromMap(Map<String, dynamic> map) {
-    return Restaurant(
-      id: map['id'],
-      name: map['name'] ?? '',
-      latitude: (map['latitude'] as num).toDouble(),
-      longitude: (map['longitude'] as num).toDouble(),
-      distance: map['distance'] ?? '',
-      type: map['type'] ?? '',
-      imageUrl: map['imageUrl'],
-      isFavorite: map['isFavorite'] == 1,
-    );
-  }
+    String? id,
+  }) : id = id ?? uuid.v4();
 
   Map<String, dynamic> toMap() {
     return {
@@ -43,5 +34,18 @@ class Restaurant {
       'imageUrl': imageUrl,
       'isFavorite': isFavorite ? 1 : 0,
     };
+  }
+
+  factory Restaurant.fromMap(Map<String, dynamic> map) {
+    return Restaurant(
+      id: map['id'].toString(),
+      name: map['name'] ?? '',
+      latitude: (map['latitude'] as num).toDouble(),
+      longitude: (map['longitude'] as num).toDouble(),
+      distance: map['distance'] ?? '',
+      type: map['type'] ?? '',
+      imageUrl: map['imageUrl'],
+      isFavorite: map['isFavorite'] == 1,
+    );
   }
 }
