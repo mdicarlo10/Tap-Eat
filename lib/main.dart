@@ -3,35 +3,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/homepage.dart';
 import 'screens/searching.dart';
 import 'screens/preferences.dart';
-import '../database/restaurant_db.dart';
+import 'database/restaurant_db.dart';
 
-const backgroundColor = Color(0xFFFFF8F0);
-const primaryColor = Color(0xFFEB5E28);
-const textColor = Color(0xFF252422);
-const secondaryTextColor = Color(0xFF403D39);
-const borderColor = Color(0xFFCCC5B9);
+final customColorScheme = ColorScheme.fromSeed(
+  brightness: Brightness.light,
+  seedColor: const Color(0xFFE4572E),
+  primary: const Color(0xFFE07A5F),
+  onPrimary: const Color(0xFFFFF8F0),
+  surface: const Color(0xFFFFF8F0),
+  onSurface: const Color(0xFF403D39),
+);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RestaurantDatabase.instance.database;
 
-  runApp(const ProviderScope(child: MainApp()));
+  runApp(const ProviderScope(child: TapEatApp()));
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class TapEatApp extends StatelessWidget {
+  const TapEatApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Tap&Eat',
       theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.deepOrange,
+        colorScheme: customColorScheme,
+        appBarTheme: AppBarTheme(
+          backgroundColor: customColorScheme.primary,
+          titleTextStyle: const TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 20,
+            color: Color(0xFFFFF8F0),
+          ),
+          iconTheme: IconThemeData(color: customColorScheme.onPrimary),
+        ),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
       ),
-      home: NavigationWrapper(),
+      home: const NavigationWrapper(),
     );
   }
 }
@@ -40,13 +52,13 @@ class NavigationWrapper extends StatefulWidget {
   const NavigationWrapper({super.key});
 
   @override
-  State<NavigationWrapper> createState() => NavigationWrapperState();
+  State<NavigationWrapper> createState() => _NavigationWrapperState();
 }
 
-class NavigationWrapperState extends State<NavigationWrapper> {
+class _NavigationWrapperState extends State<NavigationWrapper> {
   int selectedIndex = 0;
 
-  final List<Widget> _pages = [Homepage(), Searching(), Preferences()];
+  final List<Widget> _pages = const [Homepage(), Searching(), Preferences()];
 
   void _onTap(int index) {
     setState(() {
@@ -62,7 +74,7 @@ class NavigationWrapperState extends State<NavigationWrapper> {
         currentIndex: selectedIndex,
         onTap: _onTap,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.deepOrange,
+        selectedItemColor: customColorScheme.primary,
         unselectedItemColor: Colors.grey,
         showSelectedLabels: false,
         showUnselectedLabels: false,
