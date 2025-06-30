@@ -3,7 +3,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
 import '../models/restaurant.dart';
-import '../database/restaurant_db.dart';
 import '../main.dart';
 
 class Searching extends StatefulWidget {
@@ -167,7 +166,7 @@ class _SearchingPageState extends State<Searching> {
                   polygons: [
                     Polygon(
                       points: polygonPoints,
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.blue,
                       borderStrokeWidth: 2.0,
                       borderColor: Colors.blue,
                     ),
