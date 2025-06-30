@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../widgets/latest_restaurant.dart';
 
-class Homepage extends StatefulWidget {
+class Homepage extends StatelessWidget {
   const Homepage({super.key});
-
-  @override
-  State<Homepage> createState() => _HomepageState();
-}
-
-class _HomepageState extends State<Homepage> {
-  final TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +19,7 @@ class _HomepageState extends State<Homepage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Center(
               child: Container(
                 width: 120,
@@ -41,9 +35,7 @@ class _HomepageState extends State<Homepage> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 10),
             const Center(
               child: Text(
                 'Tap & Eat',
@@ -54,58 +46,9 @@ class _HomepageState extends State<Homepage> {
                 ),
               ),
             ),
+            const SizedBox(height: 25),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: 'Dove volevi mangiare?',
-                  prefixIcon: Icon(Icons.search, color: textColor),
-                  filled: true,
-                  fillColor: borderColor.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: TextStyle(color: textColor),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              "Ricerche precedenti",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: textColor.withOpacity(0.8),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            Container(
-              decoration: BoxDecoration(
-                color: borderColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(16),
-              child: const Center(
-                child: Text(
-                  'Nessuna ricerca recente',
-                  style: TextStyle(color: textColor, fontSize: 16),
-                ),
-              ),
-            ),
+            const LatestRestaurant(),
           ],
         ),
       ),
