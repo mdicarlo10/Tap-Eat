@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/restaurant_favorite_provider.dart';
 import '../models/restaurant.dart';
 import '../database/restaurant_db.dart';
-import '../main.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
   final Restaurant restaurant;
@@ -82,25 +81,26 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Dettagli ristorante',
-          style: const TextStyle(
-            color: primaryColor,
+          style: TextStyle(
+            color: colorScheme.onPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: backgroundColor,
-        iconTheme: const IconThemeData(color: textColor),
+        backgroundColor: colorScheme.primary,
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
         elevation: 0,
         actions: [
           IconButton(
             icon: Icon(
               _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite ? Colors.red : textColor,
+              color: _isFavorite ? Colors.white : colorScheme.onPrimary,
             ),
             onPressed: _toggleFavorite,
           ),
@@ -120,15 +120,21 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
                         width: double.infinity,
                         height: 180,
                         fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) => Icon(
+                              Icons.image_not_supported,
+                              size: 60,
+                              color: colorScheme.secondary,
+                            ),
                       )
                       : Container(
                         width: double.infinity,
                         height: 180,
-                        color: borderColor,
-                        child: const Icon(
+                        color: colorScheme.outline,
+                        child: Icon(
                           Icons.restaurant,
                           size: 60,
-                          color: secondaryTextColor,
+                          color: colorScheme.secondary,
                         ),
                       ),
             ),
@@ -136,26 +142,26 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
 
             Text(
               widget.restaurant.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: textColor,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               "Tipo: ${widget.restaurant.type}",
-              style: const TextStyle(fontSize: 16, color: secondaryTextColor),
+              style: TextStyle(fontSize: 16, color: colorScheme.secondary),
             ),
             const SizedBox(height: 4),
             Text(
               "Distanza: ${widget.restaurant.distance}",
-              style: const TextStyle(fontSize: 16, color: secondaryTextColor),
+              style: TextStyle(fontSize: 16, color: colorScheme.secondary),
             ),
             const SizedBox(height: 4),
             Text(
               "Posizione: (${widget.restaurant.latitude.toStringAsFixed(4)}, ${widget.restaurant.longitude.toStringAsFixed(4)})",
-              style: const TextStyle(fontSize: 16, color: secondaryTextColor),
+              style: TextStyle(fontSize: 16, color: colorScheme.secondary),
             ),
 
             const Spacer(),
@@ -167,7 +173,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
                 icon: const Icon(Icons.navigation, color: Colors.white),
                 onPressed: _launchMaps,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
