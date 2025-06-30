@@ -14,6 +14,7 @@ class _SearchingState extends State<Preferences> {
   //Simulo la lista dei ristoranti che poi mi dovrò recuperare dal DB
   final List<Restaurant> allRestaurants = [
     Restaurant(
+      id: "1",
       name: 'Ristorante Bella Napoli',
       latitude: 45.4642,
       longitude: 9.1900,
@@ -23,6 +24,7 @@ class _SearchingState extends State<Preferences> {
       isFavorite: true,
     ),
     Restaurant(
+      id: "14",
       name: 'Sushi World',
       latitude: 45.4650,
       longitude: 9.1910,
@@ -32,6 +34,7 @@ class _SearchingState extends State<Preferences> {
       isFavorite: false,
     ),
     Restaurant(
+      id: "19",
       name: 'Pizzeria da Marco',
       latitude: 45.4660,
       longitude: 9.1920,

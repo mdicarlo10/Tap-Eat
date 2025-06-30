@@ -27,6 +27,7 @@ class _SearchingPageState extends State<Searching> {
 
     _restaurants = [
       Restaurant(
+        id: "1",
         name: 'Ristorante 1',
         type: 'Italiana',
         distance: '500 m',
@@ -35,6 +36,7 @@ class _SearchingPageState extends State<Searching> {
         imageUrl: null,
       ),
       Restaurant(
+        id: "2",
         name: 'Pizzeria Bella',
         type: 'Pizzeria',
         distance: '1 km',
