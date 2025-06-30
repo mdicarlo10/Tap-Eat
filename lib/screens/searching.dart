@@ -214,17 +214,20 @@ class _SearchingPageState extends State<Searching> {
             ),
           ),
           if (_isDrawingArea)
-            GestureDetector(
-              onPanUpdate: (details) {
-                final point = _convertToLatLng(details.localPosition);
-                setState(() {
-                  polygonPoints.add(point);
-                });
-              },
-              onPanEnd: (_) {
-                _confirmPolygon();
-              },
-              child: Container(color: Colors.transparent),
+            Positioned.fill(
+              top: 70,
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  final point = _convertToLatLng(details.localPosition);
+                  setState(() {
+                    polygonPoints.add(point);
+                  });
+                },
+                onPanEnd: (_) {
+                  _confirmPolygon();
+                },
+                child: Container(color: Colors.transparent),
+              ),
             ),
           if (showResults)
             Align(
