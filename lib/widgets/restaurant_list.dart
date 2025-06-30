@@ -22,7 +22,6 @@ class RestaurantList extends StatelessWidget {
       itemCount: restaurants.length,
       itemBuilder: (context, index) {
         final restaurant = restaurants[index];
-        // Controlla se il ristorante è nei preferiti usando l'ID
         final isFavorite = favorites.any((fav) => fav.id == restaurant.id);
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
