@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/homepage.dart';
 import 'screens/searching.dart';
 import 'screens/preferences.dart';
@@ -10,7 +11,7 @@ const secondaryTextColor = Color(0xFF403D39);
 const borderColor = Color(0xFFCCC5B9);
 
 void main() {
-  runApp(const MainApp());
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
