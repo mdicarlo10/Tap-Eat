@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../database/restaurant_db.dart';
 import '../models/restaurant.dart';
 import '../widgets/restaurant_list.dart';
 import '../main.dart';
@@ -7,61 +8,45 @@ class Preferences extends StatefulWidget {
   const Preferences({Key? key}) : super(key: key);
 
   @override
-  State<Preferences> createState() => _SearchingState();
+  State<Preferences> createState() => _PreferencesState();
 }
 
-class _SearchingState extends State<Preferences> {
-  //Simulo la lista dei ristoranti che poi mi dovrò recuperare dal DB
-  final List<Restaurant> allRestaurants = [
-    Restaurant(
-      id: "1",
-      name: 'Ristorante Bella Napoli',
-      latitude: 45.4642,
-      longitude: 9.1900,
-      distance: '500 m',
-      type: 'Italiana',
-      imageUrl: 'https://example.com/image1.jpg',
-      isFavorite: true,
-    ),
-    Restaurant(
-      id: "14",
-      name: 'Sushi World',
-      latitude: 45.4650,
-      longitude: 9.1910,
-      distance: '1 km',
-      type: 'Giapponese',
-      imageUrl: 'https://example.com/image2.jpg',
-      isFavorite: false,
-    ),
-    Restaurant(
-      id: "19",
-      name: 'Pizzeria da Marco',
-      latitude: 45.4660,
-      longitude: 9.1920,
-      distance: '800 m',
-      type: 'Pizzeria',
-      imageUrl: null,
-      isFavorite: true,
-    ),
-  ];
-
-  late List<Restaurant> favorites;
+class _PreferencesState extends State<Preferences> {
+  bool _isSearching = false;
+  List<Restaurant> _searchResults = [];
+  bool _hasSearched = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    favorites = allRestaurants.where((r) => r.isFavorite).toList();
+    _loadFavorites();
   }
 
-  void toggleFavorite(Restaurant restaurant) {
+  Future<void> _loadFavorites() async {
+    final results = await RestaurantDatabase.instance.getFavorites();
     setState(() {
-      final isFav = favorites.any((r) => r.name == restaurant.name);
-      if (isFav) {
-        favorites.removeWhere((r) => r.name == restaurant.name);
-      } else {
-        favorites.add(restaurant);
-      }
+      _searchResults = results;
+      _hasSearched = true;
     });
+  }
+
+  Future<void> _performSearch(String query) async {
+    final favorites = await RestaurantDatabase.instance.getFavorites();
+    final results =
+        favorites
+            .where((r) => r.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+    setState(() {
+      _searchResults = results;
+      _hasSearched = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,32 +54,66 @@ class _SearchingState extends State<Preferences> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: Text(
-          'I tuoi preferiti',
-          style: TextStyle(
-            color: primaryColor,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title:
+            _isSearching
+                ? TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Cerca ristorante...',
+                    border: InputBorder.none,
+                  ),
+                  onSubmitted: (query) {
+                    _performSearch(query);
+                  },
+                )
+                : Text(
+                  'I tuoi preferiti',
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         backgroundColor: backgroundColor,
         elevation: 0,
         centerTitle: true,
         foregroundColor: textColor,
+        actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _loadFavorites();
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body:
-          favorites.isEmpty
-              ? Center(
-                child: Text(
-                  'Nessun ristorante preferito',
-                  style: TextStyle(color: secondaryTextColor, fontSize: 18),
-                ),
-              )
-              : RestaurantList(
-                restaurants: favorites,
-                favorites: favorites,
-                toggleFavorite: toggleFavorite,
-              ),
+          _hasSearched
+              ? (_searchResults.isEmpty
+                  ? Center(
+                    child: Text(
+                      'Nessun ristorante preferito',
+                      style: TextStyle(color: secondaryTextColor, fontSize: 18),
+                    ),
+                  )
+                  : RestaurantList(
+                    restaurants: _searchResults,
+                    favorites: _searchResults,
+                    toggleFavorite: (restaurant) {
+                      // Puoi lasciare vuoto per ora, o ricaricare la lista
+                      _loadFavorites();
+                    },
+                  ))
+              : Container(),
     );
   }
 }
