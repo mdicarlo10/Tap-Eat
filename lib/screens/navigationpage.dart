@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../providers/restaurant_favorite_provider.dart';
 import '../models/restaurant.dart';
 import '../database/restaurant_db.dart';
+import '../service/map_launcher_service.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
   final Restaurant restaurant;
@@ -41,14 +41,15 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
   }
 
   void _launchMaps() async {
-    final url = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1&destination=${widget.restaurant.latitude},${widget.restaurant.longitude}',
+    final mapLauncher = MapLauncherService();
+    final success = await mapLauncher.launchNavigation(
+      widget.restaurant.latitude,
+      widget.restaurant.longitude,
     );
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Impossibile aprire Google Maps';
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossibile aprire Google Maps')),
+      );
     }
   }
 
