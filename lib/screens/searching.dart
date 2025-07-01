@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
 import '../models/restaurant.dart';
 import '../service/restaurant_recognite_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:async';
 
 class Searching extends StatefulWidget {
   const Searching({super.key});
@@ -20,30 +22,124 @@ class _SearchingPageState extends State<Searching> {
   List<LatLng> polygonPoints = [];
   List<Restaurant> _filteredInPolygon = [];
 
+  LatLng? _userPosition;
+  Timer? _debounce;
+  StreamSubscription<Position>? _positionSubscription;
+
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
-    _fetchRestaurants();
+    _initLocation();
   }
 
-  Future<void> _fetchRestaurants() async {
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _positionSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Servizi di localizzazione disabilitati.'),
+        ),
+      );
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permesso di localizzazione negato.')),
+        );
+        return;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Permesso di localizzazione negato permanentemente.'),
+        ),
+      );
+      return;
+    }
+
+    final position = await Geolocator.getCurrentPosition();
+    if (!mounted) return;
+    setState(() {
+      _userPosition = LatLng(position.latitude, position.longitude);
+    });
+    _mapController.move(_userPosition!, 13);
+    await _fetchRestaurants(position.latitude, position.longitude);
+
+    _positionSubscription = Geolocator.getPositionStream().listen((pos) async {
+      if (!mounted) return;
+      setState(() {
+        _userPosition = LatLng(pos.latitude, pos.longitude);
+      });
+      if (!_isDrawingArea && polygonPoints.isEmpty) {
+        _mapController.move(_userPosition!, _mapController.zoom);
+        await _fetchRestaurants(pos.latitude, pos.longitude);
+      }
+    });
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value;
+    });
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      if (value.isNotEmpty) {
+        // Prendi il centro della mappa
+        LatLng center = _mapController.center;
+        await _fetchRestaurants(
+          center.latitude,
+          center.longitude,
+          query: value,
+          radius: 4000,
+        );
+      } else {
+        // Se la searchbar è vuota, mostra i ristoranti normali
+        if (_userPosition != null) {
+          await _fetchRestaurants(
+            _userPosition!.latitude,
+            _userPosition!.longitude,
+          );
+        }
+      }
+    });
+  }
+
+  Future<void> _fetchRestaurants(
+    double latitude,
+    double longitude, {
+    String? query,
+    int radius = 2000,
+  }) async {
     try {
       final results = await RestaurantRecognizerService.searchNearbyRestaurants(
-        latitude: 45.4642,
-        longitude: 9.1900,
+        latitude: latitude,
+        longitude: longitude,
+        query: query,
+        radius: radius,
       );
-
       if (!mounted) return;
-
       setState(() {
         _restaurants = results;
       });
     } catch (e) {
       print("Errore nel caricamento ristoranti: $e");
-
       if (!mounted) return;
-
       setState(() {
         _restaurants = [];
       });
@@ -72,8 +168,32 @@ class _SearchingPageState extends State<Searching> {
     return LatLng(lat, lng);
   }
 
-  void _confirmPolygon() {
+  void _confirmPolygon() async {
     if (polygonPoints.length < 3) return;
+
+    // Calcola il centroide del poligono
+    double sumLat = 0;
+    double sumLng = 0;
+    for (final p in polygonPoints) {
+      sumLat += p.latitude;
+      sumLng += p.longitude;
+    }
+    final center = LatLng(
+      sumLat / polygonPoints.length,
+      sumLng / polygonPoints.length,
+    );
+
+    // Se il centro del poligono è distante più di 2km dalla posizione utente, aggiorna la ricerca
+    if (_userPosition != null) {
+      final dist = const Distance().as(
+        LengthUnit.Meter,
+        _userPosition!,
+        center,
+      );
+      if (dist > 2000) {
+        await _fetchRestaurants(center.latitude, center.longitude);
+      }
+    }
 
     final filtered =
         _restaurants.where((rest) {
@@ -115,6 +235,15 @@ class _SearchingPageState extends State<Searching> {
         final point = LatLng(rest.latitude, rest.longitude);
         return _pointInPolygon(point, polygonPoints);
       }).toList();
+    } else if (_userPosition != null) {
+      return _restaurants.where((rest) {
+        final dist = const Distance().as(
+          LengthUnit.Meter,
+          _userPosition!,
+          LatLng(rest.latitude, rest.longitude),
+        );
+        return dist <= 2000;
+      }).toList();
     } else {
       return _restaurants;
     }
@@ -123,11 +252,16 @@ class _SearchingPageState extends State<Searching> {
   @override
   Widget build(BuildContext context) {
     final center =
-        _restaurants.isNotEmpty
-            ? LatLng(_restaurants[0].latitude, _restaurants[0].longitude)
-            : LatLng(45.4642, 9.1900);
+        polygonPoints.isNotEmpty && polygonPoints.length >= 3
+            ? polygonPoints[0]
+            : _userPosition ??
+                (_restaurants.isNotEmpty
+                    ? LatLng(
+                      _restaurants[0].latitude,
+                      _restaurants[0].longitude,
+                    )
+                    : LatLng(45.4642, 9.1900));
 
-    final showResults = _searchQuery.isNotEmpty || (polygonPoints.length >= 3);
     final results = _filteredRestaurants;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -171,6 +305,19 @@ class _SearchingPageState extends State<Searching> {
                     ),
                   ],
                 ),
+              if (_userPosition != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _userPosition!,
+                      width: 40,
+                      height: 40,
+                      builder:
+                          (_) =>
+                              const Icon(Icons.my_location, color: Colors.blue),
+                    ),
+                  ],
+                ),
               MarkerLayer(
                 markers:
                     results.map((restaurant) {
@@ -206,11 +353,7 @@ class _SearchingPageState extends State<Searching> {
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
+                onChanged: _onSearchChanged,
               ),
             ),
           ),
@@ -230,16 +373,40 @@ class _SearchingPageState extends State<Searching> {
                 child: Container(color: Colors.transparent),
               ),
             ),
-          if (showResults)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 250,
-                color: colorScheme.surface,
-                child:
-                    results.isEmpty
-                        ? const Center(child: Text('Nessun risultato'))
-                        : ListView.builder(
+          if (results.isNotEmpty)
+            DraggableScrollableSheet(
+              initialChildSize: 0.15,
+              minChildSize: 0.10,
+              maxChildSize: 0.55,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 6,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
                           itemCount: results.length,
                           itemBuilder: (context, index) {
                             final restaurant = results[index];
@@ -266,7 +433,11 @@ class _SearchingPageState extends State<Searching> {
                             );
                           },
                         ),
-              ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
         ],
       ),
