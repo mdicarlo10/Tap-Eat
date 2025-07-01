@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/homepage.dart';
 import 'screens/searching.dart';
 import 'screens/preferences.dart';
@@ -15,6 +16,7 @@ final customColorScheme = ColorScheme.fromSeed(
 );
 
 Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await RestaurantDatabase.instance.database;
 
