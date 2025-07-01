@@ -11,10 +11,10 @@ class Searching extends StatefulWidget {
   const Searching({super.key});
 
   @override
-  _SearchingPageState createState() => _SearchingPageState();
+  SearchingPageState createState() => SearchingPageState();
 }
 
-class _SearchingPageState extends State<Searching> {
+class SearchingPageState extends State<Searching> {
   late final MapController _mapController;
   List<Restaurant> _restaurants = [];
   String _searchQuery = '';
@@ -45,6 +45,7 @@ class _SearchingPageState extends State<Searching> {
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!mounted) return;
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -55,8 +56,10 @@ class _SearchingPageState extends State<Searching> {
     }
 
     permission = await Geolocator.checkPermission();
+    if (!mounted) return;
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+      if (!mounted) return;
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Permesso di localizzazione negato.')),
@@ -64,6 +67,7 @@ class _SearchingPageState extends State<Searching> {
         return;
       }
     }
+
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -75,6 +79,7 @@ class _SearchingPageState extends State<Searching> {
 
     final position = await Geolocator.getCurrentPosition();
     if (!mounted) return;
+
     setState(() {
       _userPosition = LatLng(position.latitude, position.longitude);
     });
@@ -100,7 +105,6 @@ class _SearchingPageState extends State<Searching> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       if (value.isNotEmpty) {
-        // Prendi il centro della mappa
         LatLng center = _mapController.center;
         await _fetchRestaurants(
           center.latitude,
@@ -109,7 +113,6 @@ class _SearchingPageState extends State<Searching> {
           radius: 4000,
         );
       } else {
-        // Se la searchbar è vuota, mostra i ristoranti normali
         if (_userPosition != null) {
           await _fetchRestaurants(
             _userPosition!.latitude,
@@ -138,7 +141,7 @@ class _SearchingPageState extends State<Searching> {
         _restaurants = results;
       });
     } catch (e) {
-      print("Errore nel caricamento ristoranti: $e");
+      debugPrint("Errore nel caricamento ristoranti: $e");
       if (!mounted) return;
       setState(() {
         _restaurants = [];
@@ -171,7 +174,6 @@ class _SearchingPageState extends State<Searching> {
   void _confirmPolygon() async {
     if (polygonPoints.length < 3) return;
 
-    // Calcola il centroide del poligono
     double sumLat = 0;
     double sumLng = 0;
     for (final p in polygonPoints) {
@@ -183,7 +185,6 @@ class _SearchingPageState extends State<Searching> {
       sumLng / polygonPoints.length,
     );
 
-    // Se il centro del poligono è distante più di 2km dalla posizione utente, aggiorna la ricerca
     if (_userPosition != null) {
       final dist = const Distance().as(
         LengthUnit.Meter,
@@ -385,11 +386,11 @@ class _SearchingPageState extends State<Searching> {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(16),
                     ),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black,
                         blurRadius: 8,
-                        offset: const Offset(0, -2),
+                        offset: Offset(0, -2),
                       ),
                     ],
                   ),
@@ -420,7 +421,7 @@ class _SearchingPageState extends State<Searching> {
                                 style: TextStyle(color: colorScheme.secondary),
                               ),
                               onTap: () async {
-                                Navigator.push(
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
@@ -429,6 +430,7 @@ class _SearchingPageState extends State<Searching> {
                                         ),
                                   ),
                                 );
+                                if (!mounted) return;
                               },
                             );
                           },
