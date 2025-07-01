@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
 import '../models/restaurant.dart';
-import '../database/restaurant_db.dart';
+import '../service/restaurant_recognite_service.dart';
 
 class Searching extends StatefulWidget {
   const Searching({super.key});
@@ -14,7 +14,7 @@ class Searching extends StatefulWidget {
 
 class _SearchingPageState extends State<Searching> {
   late final MapController _mapController;
-  late List<Restaurant> _restaurants;
+  List<Restaurant> _restaurants = [];
   String _searchQuery = '';
   bool _isDrawingArea = false;
   List<LatLng> polygonPoints = [];
@@ -24,29 +24,30 @@ class _SearchingPageState extends State<Searching> {
   void initState() {
     super.initState();
     _mapController = MapController();
+    _fetchRestaurants();
+  }
 
-    _restaurants = [
-      Restaurant(
-        id: "1",
-        name: 'Ristorante 1',
-        type: 'Italiana',
-        distance: '500 m',
+  Future<void> _fetchRestaurants() async {
+    try {
+      final results = await RestaurantRecognizerService.searchNearbyRestaurants(
         latitude: 45.4642,
         longitude: 9.1900,
-        imageUrl: null,
-        timestamp: DateTime.now().millisecondsSinceEpoch - 100000,
-      ),
-      Restaurant(
-        id: "2",
-        name: 'Pizzeria Bella',
-        type: 'Pizzeria',
-        distance: '1 km',
-        latitude: 45.4650,
-        longitude: 9.1910,
-        imageUrl: null,
-        timestamp: DateTime.now().millisecondsSinceEpoch - 50000,
-      ),
-    ];
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _restaurants = results;
+      });
+    } catch (e) {
+      print("Errore nel caricamento ristoranti: $e");
+
+      if (!mounted) return;
+
+      setState(() {
+        _restaurants = [];
+      });
+    }
   }
 
   void _toggleDrawing() {
@@ -101,14 +102,6 @@ class _SearchingPageState extends State<Searching> {
       }
     }
     return (intersectCount % 2) == 1;
-  }
-
-  Future<void> _saveRestaurantToHistory(Restaurant restaurant) async {
-    try {
-      await RestaurantDatabase.instance.insert(restaurant);
-    } catch (e) {
-      print('Errore nel salvare il ristorante: $e');
-    }
   }
 
   List<Restaurant> get _filteredRestaurants {
@@ -172,7 +165,7 @@ class _SearchingPageState extends State<Searching> {
                   polygons: [
                     Polygon(
                       points: polygonPoints,
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.blue,
                       borderStrokeWidth: 2.0,
                       borderColor: Colors.blue,
                     ),
@@ -260,7 +253,6 @@ class _SearchingPageState extends State<Searching> {
                                 style: TextStyle(color: colorScheme.secondary),
                               ),
                               onTap: () async {
-                                await _saveRestaurantToHistory(restaurant);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
