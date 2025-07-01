@@ -7,7 +7,7 @@ class Restaurant {
   final String name;
   final double latitude;
   final double longitude;
-  final String distance;
+  final double distance;
   final String type;
   final String? imageUrl;
   final int timestamp;
@@ -46,7 +46,7 @@ class Restaurant {
       name: map['name'] ?? '',
       latitude: (map['latitude'] as num).toDouble(),
       longitude: (map['longitude'] as num).toDouble(),
-      distance: map['distance'] ?? '',
+      distance: (map['distance'] as num).toDouble(),
       type: map['type'] ?? '',
       imageUrl: map['imageUrl'],
       timestamp: map['timestamp'],
