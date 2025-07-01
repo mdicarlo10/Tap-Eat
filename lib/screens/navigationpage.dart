@@ -10,6 +10,7 @@ class NavigationPage extends ConsumerStatefulWidget {
 
   const NavigationPage({super.key, required this.restaurant});
 
+  @override
   ConsumerState<NavigationPage> createState() => _NavigationPageState();
 }
 
