@@ -47,6 +47,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
       widget.restaurant.latitude,
       widget.restaurant.longitude,
     );
+    if (!mounted) return;
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Impossibile aprire Google Maps')),
