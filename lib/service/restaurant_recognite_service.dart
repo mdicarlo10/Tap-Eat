@@ -51,12 +51,7 @@ class RestaurantRecognizerService {
           final type = result['categories']?[0]?['name'] ?? 'Ristorante';
           final fsqId = result['fsq_id'];
 
-          String? imageUrl;
-          try {
-            imageUrl = await _fetchImageUrl(fsqId);
-          } catch (e) {
-            print('⚠️ Errore nel caricamento immagine per $name: $e');
-          }
+          String? imageUrl = await _fetchImageUrl(fsqId);
 
           return Restaurant(
             id: fsqId,
@@ -94,6 +89,8 @@ class RestaurantRecognizerService {
     final photo = photos[0];
     final prefix = photo['prefix'];
     final suffix = photo['suffix'];
-    return '${prefix}original${suffix}';
+    return '$prefix'
+        'original'
+        '$suffix';
   }
 }
