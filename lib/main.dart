@@ -5,13 +5,15 @@ import 'screens/homepage.dart';
 import 'screens/searching.dart';
 import 'screens/preferences.dart';
 import 'database/restaurant_db.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/tutorial_screen.dart';
 
 final customColorScheme = ColorScheme.fromSeed(
   brightness: Brightness.light,
   seedColor: const Color(0xFFE4572E),
   primary: const Color(0xFFE07A5F),
-  onPrimary: const Color(0xFFFFF8F0),
-  surface: const Color(0xFFFFF8F0),
+  onPrimary: const Color(0xFFE0D1B9),
+  surface: const Color(0xFFFFF5E8),
   onSurface: const Color(0xFF403D39),
 );
 
@@ -20,11 +22,15 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RestaurantDatabase.instance.database;
 
-  runApp(const ProviderScope(child: TapEatApp()));
+  final prefs = await SharedPreferences.getInstance();
+  final seenTutorial = prefs.getBool('seenTutorial') ?? false;
+
+  runApp(ProviderScope(child: TapEatApp(seenTutorial: seenTutorial)));
 }
 
 class TapEatApp extends StatelessWidget {
-  const TapEatApp({super.key});
+  final bool seenTutorial;
+  const TapEatApp({super.key, required this.seenTutorial});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +51,7 @@ class TapEatApp extends StatelessWidget {
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
       ),
-      home: const NavigationWrapper(),
+      home: seenTutorial ? const NavigationWrapper() : const TutorialScreen(),
     );
   }
 }
