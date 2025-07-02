@@ -14,24 +14,19 @@ class Homepage extends StatelessWidget {
         elevation: 0,
         toolbarHeight: 0,
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
             Center(
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: const BoxDecoration(shape: BoxShape.circle),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/Tap&Eat.png',
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/Tap&Eat.png',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
