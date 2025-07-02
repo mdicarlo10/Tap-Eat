@@ -23,7 +23,6 @@ class _LatestRestaurantState extends State<LatestRestaurant> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadRestaurants();
   }
 
   Future<void> _loadRestaurants() async {
