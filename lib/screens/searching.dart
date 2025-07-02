@@ -20,7 +20,6 @@ class SearchingPageState extends State<Searching> {
   String _searchQuery = '';
   bool _isDrawingArea = false;
   List<LatLng> polygonPoints = [];
-  List<Restaurant> _filteredInPolygon = [];
 
   LatLng? _userPosition;
   Timer? _debounce;
@@ -41,12 +40,8 @@ class SearchingPageState extends State<Searching> {
   }
 
   Future<void> _initLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!mounted) return;
-    if (!serviceEnabled) {
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Servizi di localizzazione disabilitati.'),
@@ -55,25 +50,19 @@ class SearchingPageState extends State<Searching> {
       return;
     }
 
-    permission = await Geolocator.checkPermission();
-    if (!mounted) return;
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (!mounted) return;
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Permesso di localizzazione negato.')),
-        );
-        return;
-      }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Permesso di localizzazione negato permanentemente.'),
-        ),
-      );
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
+      final msg =
+          permission == LocationPermission.denied
+              ? 'Permesso di localizzazione negato.'
+              : 'Permesso di localizzazione negato permanentemente.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       return;
     }
 
@@ -91,10 +80,6 @@ class SearchingPageState extends State<Searching> {
       setState(() {
         _userPosition = LatLng(pos.latitude, pos.longitude);
       });
-      if (!_isDrawingArea && polygonPoints.isEmpty) {
-        _mapController.move(_userPosition!, _mapController.zoom);
-        await _fetchRestaurants(pos.latitude, pos.longitude);
-      }
     });
   }
 
@@ -142,17 +127,15 @@ class SearchingPageState extends State<Searching> {
       });
     } catch (e) {
       debugPrint("Errore nel caricamento ristoranti: $e");
-      if (!mounted) return;
-      setState(() {
-        _restaurants = [];
-      });
+      if (mounted) {
+        setState(() => _restaurants = []);
+      }
     }
   }
 
   void _toggleDrawing() {
     setState(() {
       polygonPoints.clear();
-      _filteredInPolygon.clear();
       _isDrawingArea = !_isDrawingArea;
       _searchQuery = '';
     });
@@ -196,14 +179,7 @@ class SearchingPageState extends State<Searching> {
       }
     }
 
-    final filtered =
-        _restaurants.where((rest) {
-          final point = LatLng(rest.latitude, rest.longitude);
-          return _pointInPolygon(point, polygonPoints);
-        }).toList();
-
     setState(() {
-      _filteredInPolygon = filtered;
       _isDrawingArea = false;
     });
   }
@@ -261,7 +237,7 @@ class SearchingPageState extends State<Searching> {
                       _restaurants[0].latitude,
                       _restaurants[0].longitude,
                     )
-                    : LatLng(45.4642, 9.1900));
+                    : LatLng(41.9028, 12.4964));
 
     final results = _filteredRestaurants;
     final colorScheme = Theme.of(context).colorScheme;
