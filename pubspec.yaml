@@ -35,5 +35,6 @@ flutter:
   uses-material-design: true
   assets: 
     - assets/images/tapeaticon.png
+    - assets/images/logo.png
     - .env
 
