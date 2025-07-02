@@ -23,7 +23,7 @@ class Homepage extends StatelessWidget {
             Center(
               child: ClipOval(
                 child: Image.asset(
-                  'assets/images/Tap&Eat.png',
+                  'assets/images/tapeaticon.png',
                   width: 120,
                   height: 120,
                   fit: BoxFit.cover,
