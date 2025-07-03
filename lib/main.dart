@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'screens/homepage.dart';
-import 'screens/searching.dart';
-import 'screens/preferences.dart';
 import 'database/restaurant_db.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/tutorial_screen.dart';
+import 'widgets/navigation_wrapper.dart';
 
 final customColorScheme = ColorScheme.fromSeed(
   brightness: Brightness.light,
@@ -52,49 +50,6 @@ class TapEatApp extends StatelessWidget {
         highlightColor: Colors.transparent,
       ),
       home: seenTutorial ? const NavigationWrapper() : const TutorialScreen(),
-    );
-  }
-}
-
-class NavigationWrapper extends StatefulWidget {
-  const NavigationWrapper({super.key});
-
-  @override
-  State<NavigationWrapper> createState() => _NavigationWrapperState();
-}
-
-class _NavigationWrapperState extends State<NavigationWrapper> {
-  int selectedIndex = 0;
-
-  final List<Widget> _pages = const [Homepage(), Searching(), Preferences()];
-
-  void _onTap(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: _onTap,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: customColorScheme.primary,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: "Preferences",
-          ),
-        ],
-      ),
     );
   }
 }
