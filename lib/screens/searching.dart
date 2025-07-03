@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
-import 'package:tap_eat/models/restaurant.dart';
-import 'package:tap_eat/service/restaurant_recognite_service.dart';
+import '../models/restaurant.dart';
+import '../service/restaurant_recognite_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class Searching extends StatefulWidget {
   const Searching({super.key});
@@ -25,10 +26,23 @@ class SearchingPageState extends State<Searching> {
   Timer? _debounce;
   StreamSubscription<Position>? _positionSubscription;
 
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  bool? _isOffline;
+  bool _mapReady = false;
+
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
+    _checkConnection();
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      result,
+    ) {
+      if (!mounted) return;
+      setState(() {
+        _isOffline = result.contains(ConnectivityResult.none);
+      });
+    });
     _initLocation();
   }
 
@@ -36,12 +50,21 @@ class SearchingPageState extends State<Searching> {
   void dispose() {
     _debounce?.cancel();
     _positionSubscription?.cancel();
+    _connectivitySubscription?.cancel();
     super.dispose();
   }
 
+  Future<void> _checkConnection() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {
+      _isOffline = connectivityResult.contains(ConnectivityResult.none);
+    });
+  }
+
   Future<void> _initLocation() async {
-    if (!await Geolocator.isLocationServiceEnabled()) {
-      if (!mounted) return;
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!mounted) return;
+    if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Servizi di localizzazione disabilitati.'),
@@ -51,18 +74,24 @@ class SearchingPageState extends State<Searching> {
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
+    if (!mounted) return;
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+      if (!mounted) return;
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permesso di localizzazione negato.')),
+        );
+        return;
+      }
     }
 
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      if (!mounted) return;
-      final msg =
-          permission == LocationPermission.denied
-              ? 'Permesso di localizzazione negato.'
-              : 'Permesso di localizzazione negato permanentemente.';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Permesso di localizzazione negato permanentemente.'),
+        ),
+      );
       return;
     }
 
@@ -72,8 +101,12 @@ class SearchingPageState extends State<Searching> {
     setState(() {
       _userPosition = LatLng(position.latitude, position.longitude);
     });
-    _mapController.move(_userPosition!, 13);
-    await _fetchRestaurants(position.latitude, position.longitude);
+    if (!mounted || !_mapReady) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _userPosition != null && _mapReady) {
+        _mapController.move(_userPosition!, 13);
+      }
+    });
 
     _positionSubscription = Geolocator.getPositionStream().listen((pos) async {
       if (!mounted) return;
@@ -127,9 +160,10 @@ class SearchingPageState extends State<Searching> {
       });
     } catch (e) {
       debugPrint("Errore nel caricamento ristoranti: $e");
-      if (mounted) {
-        setState(() => _restaurants = []);
-      }
+      if (!mounted) return;
+      setState(() {
+        _restaurants = [];
+      });
     }
   }
 
@@ -228,6 +262,28 @@ class SearchingPageState extends State<Searching> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (_isOffline == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_isOffline!) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.wifi_off, size: 80, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'Sei offline!\nNon si può usare la mappa',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
     final center =
         polygonPoints.isNotEmpty && polygonPoints.length >= 3
             ? polygonPoints[0]
@@ -240,7 +296,6 @@ class SearchingPageState extends State<Searching> {
                     : LatLng(41.9028, 12.4964));
 
     final results = _filteredRestaurants;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -265,7 +320,17 @@ class SearchingPageState extends State<Searching> {
         children: [
           FlutterMap(
             mapController: _mapController,
-            options: MapOptions(center: center, zoom: 13),
+            options: MapOptions(
+              center: center,
+              zoom: 13,
+              onMapReady: () {
+                if (mounted) {
+                  setState(() {
+                    _mapReady = true;
+                  });
+                }
+              },
+            ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
