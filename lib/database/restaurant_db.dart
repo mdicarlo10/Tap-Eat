@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/restaurant.dart';
+import 'package:tap_eat/models/restaurant.dart';
 
 class RestaurantDatabase {
   static final RestaurantDatabase instance = RestaurantDatabase._init();
