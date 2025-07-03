@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../database/restaurant_db.dart';
-import '../models/restaurant.dart';
+import 'package:tap_eat/database/restaurant_db.dart';
+import 'package:tap_eat/models/restaurant.dart';
 
 class RestaurantFavorites extends StateNotifier<List<Restaurant>> {
   RestaurantFavorites() : super([]) {

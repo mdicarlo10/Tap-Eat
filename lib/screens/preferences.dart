@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/restaurant_favorite_provider.dart';
-import '../widgets/restaurant_list.dart';
+import 'package:tap_eat/providers/restaurant_favorite_provider.dart';
+import 'package:tap_eat/widgets/restaurant_list.dart';
 
 class Preferences extends ConsumerWidget {
   const Preferences({super.key});

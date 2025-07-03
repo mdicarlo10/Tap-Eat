@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/latest_restaurant.dart';
+import 'package:tap_eat/widgets/latest_restaurant.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
