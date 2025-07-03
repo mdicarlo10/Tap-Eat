@@ -7,6 +7,9 @@ import 'package:tap_eat/service/restaurant_recognite_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import '../exceptions/no_connection_exception.dart';
+import '../exceptions/restaurant_not_found_exception.dart';
+import '../exceptions/restaurant_recognit_exception.dart';
 
 class Searching extends StatefulWidget {
   const Searching({super.key});
@@ -229,8 +232,31 @@ class SearchingPageState extends State<Searching> {
       setState(() {
         _restaurants = results;
       });
+    } on NoConnectionException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      setState(() {
+        _restaurants = [];
+      });
+    } on RestaurantNotFoundException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      setState(() {
+        _restaurants = [];
+      });
+    } on RestaurantRecognitionException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+      setState(() {
+        _restaurants = [];
+      });
     } catch (e) {
-      debugPrint("Errore nel caricamento ristoranti: $e");
       if (!mounted) return;
       setState(() {
         _restaurants = [];
