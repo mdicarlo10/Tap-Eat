@@ -30,6 +30,7 @@ class RestaurantDatabase {
         name TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
+        address TEXT NOT NULL,
         distance REAL NOT NULL,
         type TEXT NOT NULL,
         imageUrl TEXT,
