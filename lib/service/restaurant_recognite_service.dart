@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../models/restaurant.dart';
+import 'package:tap_eat/models/restaurant.dart';
 
 class RestaurantRecognizerService {
   static final String? _apiKey = dotenv.env['FOURSQUARE_API_KEY'];
