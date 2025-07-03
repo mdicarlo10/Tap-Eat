@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tap_eat/providers/restaurant_favorite_provider.dart';
 import 'package:tap_eat/models/restaurant.dart';
 import 'package:tap_eat/database/restaurant_db.dart';
-import '../service/map_launcher_service.dart';
+import 'package:tap_eat/service/map_launcher_service.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
   final Restaurant restaurant;
