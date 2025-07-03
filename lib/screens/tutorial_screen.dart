@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart';
+import 'package:tap_eat/widgets/navigation_wrapper.dart';
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
