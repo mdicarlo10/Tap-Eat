@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/homepage.dart';
-import '../screens/searching.dart';
-import '../screens/preferences.dart';
+import 'package:tap_eat/screens/homepage.dart';
+import 'package:tap_eat/screens/searching.dart';
+import 'package:tap_eat/screens/preferences.dart';
 
 class NavigationWrapper extends StatefulWidget {
   const NavigationWrapper({super.key});
