@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../screens/navigationpage.dart';
-import '../models/restaurant.dart';
-import '../service/restaurant_recognite_service.dart';
+import 'package:tap_eat/screens/navigationpage.dart';
+import 'package:tap_eat/models/restaurant.dart';
+import 'package:tap_eat/service/restaurant_recognite_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -18,12 +18,10 @@ class Searching extends StatefulWidget {
 class SearchingPageState extends State<Searching> {
   late final MapController _mapController;
   List<Restaurant> _restaurants = [];
-  String _searchQuery = '';
   bool _isDrawingArea = false;
   List<LatLng> polygonPoints = [];
 
   LatLng? _userPosition;
-  Timer? _debounce;
   StreamSubscription<Position>? _positionSubscription;
 
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
@@ -49,7 +47,6 @@ class SearchingPageState extends State<Searching> {
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _positionSubscription?.cancel();
     _connectivitySubscription?.cancel();
     super.dispose();
@@ -118,62 +115,10 @@ class SearchingPageState extends State<Searching> {
     });
   }
 
-  void _onSearchChanged(String value) {
-    setState(() {
-      _searchQuery = value;
-    });
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
-      if (value.isNotEmpty) {
-        LatLng center = _mapController.center;
-        await _fetchRestaurants(
-          center.latitude,
-          center.longitude,
-          query: value,
-          radius: 4000,
-        );
-      } else {
-        if (_userPosition != null) {
-          await _fetchRestaurants(
-            _userPosition!.latitude,
-            _userPosition!.longitude,
-          );
-        }
-      }
-    });
-  }
-
-  Future<void> _fetchRestaurants(
-    double latitude,
-    double longitude, {
-    String? query,
-    int radius = 2000,
-  }) async {
-    try {
-      final results = await RestaurantRecognizerService.searchNearbyRestaurants(
-        latitude: latitude,
-        longitude: longitude,
-        query: query,
-        radius: radius,
-      );
-      if (!mounted) return;
-      setState(() {
-        _restaurants = results;
-      });
-    } catch (e) {
-      debugPrint("Errore nel caricamento ristoranti: $e");
-      if (!mounted) return;
-      setState(() {
-        _restaurants = [];
-      });
-    }
-  }
-
   void _toggleDrawing() async {
     setState(() {
       polygonPoints.clear();
       _isDrawingArea = !_isDrawingArea;
-      _searchQuery = '';
     });
     if (!_isDrawingArea && _userPosition != null) {
       await _fetchRestaurants(
@@ -244,12 +189,7 @@ class SearchingPageState extends State<Searching> {
   }
 
   List<Restaurant> get _filteredRestaurants {
-    if (_searchQuery.isNotEmpty) {
-      return _restaurants.where((rest) {
-        final name = rest.name.toLowerCase();
-        return name.contains(_searchQuery.toLowerCase());
-      }).toList();
-    } else if (polygonPoints.length >= 3) {
+    if (polygonPoints.length >= 3) {
       return _restaurants.where((rest) {
         final point = LatLng(rest.latitude, rest.longitude);
         return _pointInPolygon(point, polygonPoints);
@@ -271,6 +211,30 @@ class SearchingPageState extends State<Searching> {
   void _tryFetchNearbyRestaurants() {
     if (_isOffline == false && _userPosition != null && _mapReady) {
       _fetchRestaurants(_userPosition!.latitude, _userPosition!.longitude);
+    }
+  }
+
+  Future<void> _fetchRestaurants(
+    double latitude,
+    double longitude, {
+    int radius = 2000,
+  }) async {
+    try {
+      final results = await RestaurantRecognizerService.searchNearbyRestaurants(
+        latitude: latitude,
+        longitude: longitude,
+        radius: radius,
+      );
+      if (!mounted) return;
+      setState(() {
+        _restaurants = results;
+      });
+    } catch (e) {
+      debugPrint("Errore nel caricamento ristoranti: $e");
+      if (!mounted) return;
+      setState(() {
+        _restaurants = [];
+      });
     }
   }
 
@@ -395,24 +359,6 @@ class SearchingPageState extends State<Searching> {
                     }).toList(),
               ),
             ],
-          ),
-          Positioned(
-            top: 12,
-            left: 12,
-            right: 12,
-            child: Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(4),
-              child: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Ricerca ristoranti',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                ),
-                onChanged: _onSearchChanged,
-              ),
-            ),
           ),
           if (_isDrawingArea)
             Positioned.fill(
