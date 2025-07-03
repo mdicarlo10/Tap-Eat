@@ -32,6 +32,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
         name: widget.restaurant.name,
         latitude: widget.restaurant.latitude,
         longitude: widget.restaurant.longitude,
+        address: widget.restaurant.address,
         distance: widget.restaurant.distance,
         type: widget.restaurant.type,
         imageUrl: widget.restaurant.imageUrl,
@@ -150,6 +151,11 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
                 fontWeight: FontWeight.bold,
                 color: colorScheme.onSurface,
               ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.restaurant.address,
+              style: TextStyle(fontSize: 16, color: colorScheme.secondary),
             ),
             const SizedBox(height: 8),
             Text(

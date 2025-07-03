@@ -48,6 +48,7 @@ class RestaurantRecognizerService {
           final location = result['geocodes']['main'];
           final lat = (location['latitude'] as num?)?.toDouble() ?? 0.0;
           final lng = (location['longitude'] as num?)?.toDouble() ?? 0.0;
+          final address = result['location']?['formatted_address'] ?? '';
           final distance = (result['distance'] as num?)?.toDouble() ?? 0.0;
           final type = result['categories']?[0]?['name'] ?? 'Ristorante';
           final fsqId = result['fsq_id'];
@@ -59,6 +60,7 @@ class RestaurantRecognizerService {
             name: name,
             latitude: lat,
             longitude: lng,
+            address: address,
             distance: distance,
             type: type,
             imageUrl: imageUrl,

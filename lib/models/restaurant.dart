@@ -7,6 +7,7 @@ class Restaurant {
   final String name;
   final double latitude;
   final double longitude;
+  final String address;
   final double distance;
   final String type;
   final String? imageUrl;
@@ -17,6 +18,7 @@ class Restaurant {
     required this.name,
     required this.latitude,
     required this.longitude,
+    required this.address,
     required this.distance,
     required this.type,
     this.imageUrl,
@@ -32,6 +34,7 @@ class Restaurant {
       'name': name,
       'latitude': latitude,
       'longitude': longitude,
+      'address': address,
       'distance': distance,
       'type': type,
       'imageUrl': imageUrl,
@@ -46,6 +49,7 @@ class Restaurant {
       name: map['name'] ?? '',
       latitude: (map['latitude'] as num).toDouble(),
       longitude: (map['longitude'] as num).toDouble(),
+      address: map['address'] ?? '',
       distance: (map['distance'] as num).toDouble(),
       type: map['type'] ?? '',
       imageUrl: map['imageUrl'],
