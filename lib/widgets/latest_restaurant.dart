@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/restaurant.dart';
-import '../database/restaurant_db.dart';
+import 'package:tap_eat/models/restaurant.dart';
+import 'package:tap_eat/database/restaurant_db.dart';
 import 'restaurant_card.dart';
 
 class LatestRestaurant extends StatefulWidget {
