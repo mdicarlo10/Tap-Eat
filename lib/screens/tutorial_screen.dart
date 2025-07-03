@@ -122,8 +122,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
             children: [
               Image.asset(
                 'assets/images/logo.png',
-                width: 350,
-                height: 350,
+                width: 250,
+                height: 250,
                 fit: BoxFit.cover,
               ),
               const SizedBox(height: 20),
