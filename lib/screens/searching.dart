@@ -42,6 +42,7 @@ class SearchingPageState extends State<Searching> {
       setState(() {
         _isOffline = result.contains(ConnectivityResult.none);
       });
+      _tryFetchNearbyRestaurants();
     });
     _initLocation();
   }
@@ -101,6 +102,7 @@ class SearchingPageState extends State<Searching> {
     setState(() {
       _userPosition = LatLng(position.latitude, position.longitude);
     });
+    _tryFetchNearbyRestaurants();
     if (!mounted || !_mapReady) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _userPosition != null && _mapReady) {
@@ -167,12 +169,18 @@ class SearchingPageState extends State<Searching> {
     }
   }
 
-  void _toggleDrawing() {
+  void _toggleDrawing() async {
     setState(() {
       polygonPoints.clear();
       _isDrawingArea = !_isDrawingArea;
       _searchQuery = '';
     });
+    if (!_isDrawingArea && _userPosition != null) {
+      await _fetchRestaurants(
+        _userPosition!.latitude,
+        _userPosition!.longitude,
+      );
+    }
   }
 
   LatLng _convertToLatLng(Offset position) {
@@ -260,6 +268,12 @@ class SearchingPageState extends State<Searching> {
     }
   }
 
+  void _tryFetchNearbyRestaurants() {
+    if (_isOffline == false && _userPosition != null && _mapReady) {
+      _fetchRestaurants(_userPosition!.latitude, _userPosition!.longitude);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -329,6 +343,7 @@ class SearchingPageState extends State<Searching> {
                     _mapReady = true;
                   });
                 }
+                _tryFetchNearbyRestaurants();
               },
             ),
             children: [
