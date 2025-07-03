@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tap_eat/models/restaurant.dart';
+import 'package:tap_eat/exceptions/no_connection_exception.dart';
+import 'package:tap_eat/exceptions/restaurant_not_found_exception.dart';
+import 'package:tap_eat/exceptions/restaurant_recognit_exception.dart';
 
 class RestaurantRecognizerService {
   static final String? _apiKey = dotenv.env['FOURSQUARE_API_KEY'];
@@ -33,9 +36,7 @@ class RestaurantRecognizerService {
       );
 
       if (response.statusCode != 200) {
-        throw HttpException(
-          'Errore nella chiamata Foursquare: ${response.statusCode}',
-        );
+        throw RestaurantRecognitionException();
       }
 
       final decoded = jsonDecode(response.body);
@@ -65,11 +66,15 @@ class RestaurantRecognizerService {
         }),
       );
 
+      if (restaurants.isEmpty) {
+        throw RestaurantNotFoundException();
+      }
+
       return restaurants;
     } on SocketException {
-      throw Exception("Nessuna connessione a Internet.");
-    } catch (e) {
-      throw Exception("Errore nel riconoscimento dei ristoranti: $e");
+      throw NoConnectionException();
+    } catch (_) {
+      throw RestaurantRecognitionException();
     }
   }
 
