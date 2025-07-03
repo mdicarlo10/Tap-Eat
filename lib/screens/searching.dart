@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/navigationpage.dart';
-import '../models/restaurant.dart';
+import 'package:tap_eat/models/restaurant.dart';
 import '../service/restaurant_recognite_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
