@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/restaurant_favorite_provider.dart';
-import '../models/restaurant.dart';
-import '../database/restaurant_db.dart';
+import 'package:tap_eat/providers/restaurant_favorite_provider.dart';
+import 'package:tap_eat/models/restaurant.dart';
+import 'package:tap_eat/database/restaurant_db.dart';
 import '../service/map_launcher_service.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
